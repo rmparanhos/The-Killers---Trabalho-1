@@ -1,0 +1,1314 @@
+/**
+ * @file Code to initialize a slick carousel on the banner region
+ * @see https://github.com/kenwheeler/slick/
+ */
+/*globals require, requirejs, define, jQuery, Drupal, IGA */
+// # Bolero Banner
+// ## Slick
+define("bolero.banner.slick", ["jquery","underscore", "bolero.slickAnalytics", "IGA.events", "css!jquery/slick/slick.css", "jquery/slick/slick.min"],
+	function($, _, SlickAnalytics, events){
+	"use strict";
+	function BoleroBanner($banner){
+		var tracking = new SlickAnalytics($banner);
+		var slick_defaults = {
+			infinite:true, centerMode:false, centerPadding: '0px', arrows:true,
+			autoplay:false, autoplaySpeed:5000, pauseOnHover:true,
+			responsive: [{
+				breakpoint: 600,
+				settings:{ fade:false }
+			},
+				{
+					breakpoint: 599,
+					settings: { fade:false, arrows: false /*centerMode: true,*//*centerPadding: '10%'*/ }
+				}],
+			onInit: function(slider){
+				tracking.init(slider);
+				events.trigger("bolero.banner.init", [slider]);
+				if(slider.$slides.length){
+					// autoplay any video in the first slide.
+					$(slider.$slides[0]).find("video.bolero-gifv[autoplay]").each(function(){
+						var video = this;
+						$(this).on("bolero.gifv.reattach", function(){ try{video.play();}catch(e){} });
+						try{ video.play(); }catch(e){}
+					});
+				}
+			},
+			onReInit: function(slider){
+				tracking.init(slider);
+				events.trigger("bolero.banner.reinit", [slider]);
+			},
+			onBeforeChange: function(slider, currentIndex, targetIndex){
+				$(slider.$slides[currentIndex]).find("video").each(function(){
+					this.pause();
+				});
+				events.trigger("bolero.banner.beforechange", [slider, currentIndex, targetIndex] );
+			},
+			onAfterChange: function(slider, index){
+				$(slider.$slides[index]).find("video[autoplay]").each(function(){
+					this.play();
+				});
+				events.trigger("bolero.banner.afterchange", [slider, index]);
+			}
+		};
+
+		var _settings = _.extend(slick_defaults, Drupal.settings.bolero.banner.slick);
+		$banner.slick(_settings);
+
+		function personalize(event, $personalize_block, chosen_option, osid){
+			if($banner.find($personalize_block).length > 0){
+				// If this personalize block is within the banner.
+				var $block = $personalize_block.children(".block").first(),
+					$block_content = $block.children("div.block__content"),
+					block_content = $block_content.html();
+				if(block_content && block_content.trim() === ""){
+					// Remove empty personalized blocks
+					var $slides = $personalize_block.siblings(":not(.slick-cloned)").andSelf(),
+						index = $slides.index($personalize_block);
+					$banner.slickRemove(index);
+				}else{
+					// and personalized slides already in the banner carousel.
+					var $block_node = $block_content.children(".node[data-nid]"),
+						block_nid = null;
+					if($block_node.length > 0){ block_nid = $block_node.attr("data-nid"); }
+					$personalize_block.siblings().each(function(){
+						// ### For each slide
+						var $slide = $(this),
+							$entity = $slide;
+						if($slide.not(".node, .block")){
+							// Find the node or block inside it.
+							$entity = $slide.children(".node, .block").first();
+						}
+						if($entity.length > 0 && $block.length > 0){
+							if($block[0].id === $entity[0].id || block_nid && block_nid === $entity.attr("data-nid")){
+								// If the same block or node is present elsewhere in the banner remove it as a duplicate.
+								var $slides = $slide.siblings(":not(.slick-cloned)").andSelf(),
+									index = $slides.index($slide);
+								// Note: `.views-row` classes are not updated.
+								$banner.slickRemove(index);
+							}
+						}else if(Drupal.settings.personalize.option_sets[osid].executor === "callback"){
+							//TODO support executor = callback to update slick asynchronously.
+						}
+					});
+				}
+				$personalize_block.addClass("visible");
+			}
+		}
+
+		events.on("personalize.personalizeDecision", personalize).replay("personalize.personalizeDecision", personalize);
+	}
+	return BoleroBanner;
+});
+
+(function($){
+    "use strict";
+    //## Initialize Banner Region
+    var $banner = $(".l-banner .l-region--banner").first(),
+	    carousel_version = Drupal.settings.bolero.banner.library || "slick";
+	Drupal.settings.bolero.banner.$banner = $banner;
+	if($banner.length === 0){ return; }
+	// and load the carousel
+    switch(carousel_version){
+        case "owl":
+            // ### Owl Carousel
+            require(["css!jquery/owl-carousel/owl.carousel.css", "css!jquery/owl-carousel/owl.theme.css","jquery/owl-carousel/owl.carousel.min"], function(){
+                $banner.addClass("carousel");
+                $banner.owlCarousel({ items:1, loop:true, autoplay:true, autoplayTimeout: 5000, autoplayHoverPause:true, autoHeight:true, navigation:true, dots:true });
+            });
+            break;
+        case "flexslider":
+	        require(["jquery/flexslider/jquery.flexslider-min", "css!jquery/flexslider/flexslider.css"], function(){
+		        var options = $.extend(Drupal.settings.bolero.banner.flexslider || {}, { animation: "slide", selector: ".l-region--banner > *" });
+		        $banner.parent().flexslider(options);
+	        });
+            break;
+        case "slick":
+        default:
+	        // ### Slick Carousel
+            if($banner.children().length > 1){
+                require(["bolero.banner.slick"], function(BoleroBanner){
+                    new BoleroBanner($banner);
+                });
+            }
+    }
+})(jQuery);
+;
+/**
+ * @file bolero-main.layout.js
+ */
+(function($){
+    "use strict";
+
+	//# Setup Menu Icon Animation
+    function activateHamburger(event) {
+        var el = $(this);
+        if (el.hasClass('active')){
+            el.addClass('active-end');
+            el.one('transitionend', function(){
+                el.removeClass('active active-end');
+            });
+        } else {
+            el.addClass('active');
+        }
+    }
+    $('.menu-icon').click(activateHamburger);
+})(jQuery);
+;
+/**
+ * @file bolero.offcanvas.js
+ *
+ */
+//# Bolero Off Canvas
+//TODO re-do data-oc-presentation to allow multiple oc sides.
+define("bolero.offcanvas", ["jquery", "underscore", "IGA.events"], function($, _, events){
+    "use strict";
+    var OffCanvas = {
+        init: function($offCanvasWrap){
+            OffCanvas.initAjaxDetails($offCanvasWrap);
+            if(require.specified("Soundmanager.360.events")){
+                //initialize 360 player
+                OffCanvas.init360();
+            }
+            var presentationClass = $offCanvasWrap.attr("data-oc-presentation");
+            $offCanvasWrap.find(".off-canvas-close").on("click", function(e){
+                var $this = $(this),
+                    presentation = $this.attr("data-oc-presentation") || presentationClass;
+                e.preventDefault();
+                $offCanvasWrap.foundation('offcanvas', 'hide', presentation);
+            });
+
+            $offCanvasWrap.find("a.bolero-off-canvas-toggle").once(function(){
+                //Foundation open / close events don't play well with standard *-toggle class links so we do this with JS.
+                var $this = $(this),
+                    presentation = $this.attr("data-oc-presentation") || "move-left",
+                    menuSelector = $this.attr("data-oc-menu"),
+                    $offCanvasMenu = $offCanvasWrap.find("."+menuSelector);
+                $this.on("click", function(e){
+                    e.preventDefault();
+                    $offCanvasWrap.foundation('offcanvas', 'toggle', presentation);
+                    OffCanvas.position($offCanvasWrap, $offCanvasMenu);
+                });
+            });
+
+            //initialize scrolling listener
+            OffCanvas.onscroll();
+        },
+        refresh: function($container){
+            if(typeof threeSixtyPlayer !== "undefined" && $container.is(".view.view-releases")){
+                threeSixtyPlayer.init();
+            }
+            OffCanvas.initAjaxDetails($container);
+        },
+        initAjaxDetails: function($container){
+            // Attach details link click listener
+            $container.find(".ajax_details:not(.drupal-attached)").each(function() {
+                var $this = $(this),
+                    $track = $this.closest(".field-collection-item-field-tracks");
+                $this.on("click", function(e) {
+                    OffCanvas.details(e, $this);
+                });
+                $track.on("click", function(e){
+                    var $target = $(e.target),
+                        smLink = $track.find(".sm2_link").get(0),
+                        sound = threeSixtyPlayer.lastSound;
+                    if(!$target.is("a") && typeof threeSixtyPlayer !== "undefined" &&
+                        (!sound || sound.url !== smLink.href) &&
+                        $target.parents(".paragraphs-items-field-providers").length === 0 ){
+                        //Fake an event for the soundmanager player
+                        threeSixtyPlayer.handleClick({ target: smLink });
+                    }
+                });
+            }).addClass("drupal-attached");
+        },
+        onscroll: _.once(function (){
+            // Hide off canvas main when scrolled past content.
+            // Only call this function once.
+            require(["underscore","jquery/plugins/jquery.viewport.min"], function(_){
+                var $offCanvasMain = $('.l-main.off-canvas-wrap'),
+                    presentationClass = $offCanvasMain.attr("data-oc-presentation");
+                var onScroll = _.debounce(function() {
+                    if ($offCanvasMain.find(".ajax-target .details-more-link:above-the-top").length > 0) {
+                        $offCanvasMain.removeClass('offcanvasActive');
+                        $offCanvasMain.foundation('offcanvas', 'hide', presentationClass);
+                        $(".ajax_details").removeClass('active');
+                    }
+
+                    if ($offCanvasMain.find(".ajax-target .field--name-title:below-the-fold").length > 0) {
+                        $offCanvasMain.removeClass('offcanvasActive');
+                        $offCanvasMain.foundation('offcanvas', 'hide', presentationClass);
+                        $(".ajax_details").removeClass('active');
+                    }
+                }, 200);
+                //debounce to fire every 200ms instead of constantly
+                $(window).on("scroll", onScroll);
+            });
+        }),
+        init360: _.once(function(){
+            //listen for Soundmanager 360 events in tracks
+            require(["Soundmanager.360.events"], function(events){
+                events.on("Soundmanager.360.play", OffCanvas.on360Play);
+                events.on("Soundmanager.360.resume", OffCanvas.on360Play);
+                events.on("Soundmanager.360.pause", OffCanvas.on360Pause);
+                events.on("Soundmanager.360.stop", OffCanvas.on360Pause);
+                events.on("Soundmanager.360.finish", OffCanvas.on360Pause);
+            });
+        }),
+        on360Play: function(three60Player){
+            var $link = $(three60Player._360data.oLink),
+                $track = $link.closest(".field-collection-item-field-tracks"),
+                $detailsLink = $track.find(".ajax_details:first"),
+                $offCanvasWrap = $detailsLink.closest(".off-canvas-wrap"),
+                $field = $link.closest(".field"),
+	            $node = $link.closest("article.node"),
+                sound = threeSixtyPlayer.lastSound;
+            if($track.closest(".field").is(".field--name-field-tracks")){
+                //only trigger off canvas details if this play event is within the releases view.
+                $track.addClass("active");
+	            $node.addClass("active");
+                if( !$offCanvasWrap.is(".offcanvasActive") || !sound || sound.url !== $link.attr("href") ){
+                    OffCanvas.details(null, $detailsLink);
+                }
+            }
+        },
+        on360Pause: function(three60Player){
+            var $link = $(three60Player._360data.oLink),
+                $track = $link.closest(".field-collection-item-field-tracks"),
+	            $node = $link.closest("article.node");
+            $track.removeClass("active");
+	        $node.removeClass("active");
+        },
+        loadContent: function($el, $offCanvasAjax, callback) {
+            var target = $el.attr('href'),
+                base =  $el.attr('id');
+            // ajax callback to replace contents in offCanvas
+            require(["jquery","Drupal.ajax"], function($){
+                $.ajax({
+                    url: target
+                }).done(function(response) {
+                    var ajax = new Drupal.ajax(base, $el, { url: target}),
+                        data = response[1];
+                    //todo replace selector in response?
+                    data.selector = $offCanvasAjax;
+                    ajax.commands.insert(ajax, data);
+                    if(callback){ callback($offCanvasAjax, data); }
+                });
+            });
+        },
+        details: function(e, $el) {
+	        if($el.length === 0){ return; }
+            var $offCanvasWrap = $el.closest(".off-canvas-wrap"),
+                $offCanvasOuter = $('#page'),
+                presentationClass = $offCanvasWrap.attr("data-oc-presentation"),
+                side = $offCanvasWrap.attr("data-oc-side"),
+                menuSelector = "."+side+"-off-canvas-menu",
+                $offCanvasMenu = $offCanvasWrap.children(menuSelector),
+                $offCanvasInner = $offCanvasWrap.children(".inner-wrap"),
+                $offCanvasAjax = $offCanvasWrap.find("> aside .ajax-target");
+            if($offCanvasWrap.is(".view")){
+                $offCanvasOuter = $offCanvasWrap.closest(".block--views");
+            }
+            $offCanvasAjax.empty();
+            // prevent default behavior
+            if (e !== null) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+
+            var $track = $el.closest(".field-collection-item-field-tracks"),
+	            $node = $el.closest("article.node");
+            if($track.length > 0){
+                $(".field-collection-item-field-tracks").removeClass("active");
+                $track.addClass("active");
+	            $node.addClass("active").siblings(".node").removeClass("active");
+            }
+
+            //todo .ajax-details -> .offcanvas-details
+            OffCanvas.loadContent($el, $offCanvasAjax, _.partial(OffCanvas.position, $offCanvasWrap, $offCanvasMenu));
+
+            //remove all other off canvas close listeners
+            $offCanvasInner.off("click.offcanvas");
+            $offCanvasOuter.off("click.offcanvas", offCanvasClose);
+            function offCanvasClose(e) {
+                var $target = $(e.target);
+                if ($offCanvasWrap.is(".offcanvasActive") && $target.closest(".field-collection-item-field-tracks").length === 0 &&
+                    $target.closest(menuSelector).get(0) !== $offCanvasMenu.get(0) )
+                {
+                    $offCanvasWrap.removeClass('offcanvasActive');
+                    $offCanvasWrap.foundation('offcanvas', 'hide', presentationClass);
+                    $(".ajax_details").removeClass('active');
+                    events.trigger("bolero.offcanvas.close", [$offCanvasWrap, $el, $offCanvasAjax, presentationClass]);
+                    $offCanvasInner.off("click.offcanvas", offCanvasClose);
+                    $offCanvasOuter.off("click.offcanvas", offCanvasClose);
+	                $node.removeClass("active");
+                }
+            }
+
+            // if active details link
+            if ($el.hasClass('active')) {
+                // hide off canvas
+                $offCanvasWrap.foundation('offcanvas', 'hide', presentationClass).removeClass('offcanvasActive');
+                $el.removeClass('active');
+            } else {
+                //TODO empty offcanvas, loading?
+                // show offcanvas
+                $offCanvasWrap.foundation('offcanvas', 'show', presentationClass);
+                $offCanvasWrap.addClass('offcanvasActive');
+                events.trigger("bolero.offcanvas.show", [$offCanvasWrap, $el, $offCanvasAjax, presentationClass]);
+
+                // Close offcanvas
+                setTimeout(function(){
+                    //without the deferred call 360 player triggers a close.
+                    $offCanvasInner.on("click.offcanvas", offCanvasClose);
+                    $offCanvasOuter.on("click.offCanvas", offCanvasClose);
+                },0);
+
+                // remove the active state current details link
+                $(".ajax_details").removeClass('active');
+                // set active state
+                $el.addClass('active');
+            }
+        },
+        position: function($offCanvasWrap, $offCanvasMenu){
+            var $window = $(window),
+                $offCanvasContainer = $offCanvasMenu.children(".off-canvas-container");
+            if($offCanvasMenu.height() > $window.height()){
+                //If the off-canvas region is bigger than the window then we need to position it.
+                var scrollTop = $window.scrollTop(),
+                    offCanvasPadding = parseInt($offCanvasWrap.css('padding').replace("px", ""));
+                // calculate position
+                var offset = $offCanvasWrap.offset(),
+                    position = $offCanvasWrap.position(),
+                    headerHeight = $("#page > .inner-wrap > .l-header").height(),
+                    ocWrapHeight = $offCanvasWrap.outerHeight(true),
+                    margin = 0;
+                if (scrollTop > offset.top) {
+                    margin = scrollTop - position.top - offCanvasPadding + headerHeight;
+                }
+                $offCanvasContainer.css('margin-top', margin);
+                require(["imagesloaded"], function(imagesLoaded){
+                    imagesLoaded($offCanvasContainer.get(0)).on("always", function(){
+                        //var ocHeight = $offCanvasAjax.height() + margin;
+                        var ocHeight = $offCanvasContainer.outerHeight(true);
+                        if(ocHeight > ocWrapHeight){
+                            // If the off-canvas menu is taller than the wrapper, add a margin-bottom to the wrapper.
+                            //$offCanvasWrap.css("padding-bottom", "+=" + (ocHeight - ocWrapHeight));
+                            $offCanvasContainer.css("margin-top", "-=" + (ocHeight - ocWrapHeight));
+                        }
+                        //TODO follow & .off on close.
+                    });
+                });
+            }
+        }
+    };
+    return OffCanvas;
+});
+
+(function($){
+    Drupal.behaviors.boleroOffCanvas = {
+        attach: function(context, settings){
+            var presentationClass,
+                $context = $(context);
+			if(!settings.bolero){ return; }
+            if (settings.bolero.offCanvasContentSide === 'right') {
+                presentationClass = settings.bolero.offCanvasContentAnimation + '-left';
+            } else {
+                presentationClass = settings.bolero.offCanvasContentAnimation + '-right';
+            }
+            if($context.is(".view")){
+                //views load more
+                require(["bolero.offcanvas"], function(OffCanvas){
+                    OffCanvas.refresh($context);
+                });
+            }else{
+                $('.off-canvas-wrap:not(.drupal-attached)', context).not("#page").once(function() {
+                    //TODO support load more / re-binding links
+                    var $offCanvasWrap = $(this);
+                    $offCanvasWrap.attr("data-oc-presentation", presentationClass).attr("data-oc-side", settings.bolero.offCanvasContentSide);
+                    require(["bolero.offcanvas"], function(OffCanvas){
+                        OffCanvas.init($offCanvasWrap);
+                    });
+                }).addClass("drupal-attached");
+            }
+        }
+    };
+})(jQuery);
+;
+/**
+ * @file bolero.card.js
+ * @author Malcolm Poindexter <malcolm.poindexter@umusic.com>
+ * 
+ */
+(function ($) {
+	"use strict";
+	Drupal.behaviors.boleroDsCard = {
+		attach: function(context, settings){
+			$(".ds-bolero-card:not(.bolero-ds-card-processed)").each(function(){
+				var $this = $(this),
+					$rExpanded = $this.find(".ds-region--expanded"),
+					$expand = $this.find(".ds-region--footer .expand .button");
+				
+				$expand.click(function(){
+					$rExpanded.slideToggle();
+					var isCollapsed = ($rExpanded.attr("data-collapsed") === "true");
+					if(isCollapsed){
+						$expand.text("Collapse").removeClass("collapsed").addClass("expanded");
+						$rExpanded.attr("data-collapsed", false);
+					}else{
+						$expand.text("Expand").removeClass("expanded").addClass("collapsed");
+						$rExpanded.attr("data-collapsed", true); 
+					}
+				});
+				
+				$this.addClass("bolero-ds-card-processed");
+			});
+		}
+	};
+})(jQuery);
+;
+/**
+ * @file bolero.social_actions.spotify.js
+ */
+/*globals require, requirejs, define, jQuery, Drupal, IGA */
+// # Spotify Social Actions
+define("bolero.social_actions.spotify", ["underscore", "inherits", "bolero.social_actions", "googleanalytics"],
+function(_, inherits, Core){
+	"use strict";
+	function Spotify(){
+		this.trigger = _.wrap(this.trigger, function(trigger){
+			var self = this, args = arguments;
+			Core.prototype.trigger.apply(this, arguments);
+			require(["spotify-web-api"], function(SpotifyWebApi){
+				self.api = new SpotifyWebApi();
+				self.api.setAccessToken(self.service.Token);
+				trigger.apply(self, args);
+			});
+		});
+		Core.apply(this, arguments);
+	}
+	inherits(Spotify, Core);
+
+	// ## Retry Action
+	Spotify.prototype.retry = function(request){
+		var response = JSON.parse(request.response),
+			self = this;
+		if(response.error){
+			if( !this.token_refresh && response.error.message === "The access token expired"){
+				this.token_refresh = true;
+				// Attempt to refresh the AE access token.
+				this.refreshToken().done(function(){ self.trigger(); });
+			}else{
+				ga("send", "exception", {
+					appName: "Bolero Social Action | spotify.follow",
+					exDescription:  response.error.message,
+					exFatal: false
+				});
+				// TODO message?
+			}
+		}
+	};
+
+	return Spotify;
+});
+
+// ## Follow Artists
+define("bolero.social_actions.spotify.follow", ["underscore", "inherits", "bolero.social_actions.spotify", "googleanalytics"],
+function(_, inherits, Spotify){
+"use strict";
+	function Follow(){
+		Spotify.apply(this, arguments);
+		this.isComplete("ids");
+		this.retry = _.bind( this.retry, this);
+	}
+	inherits(Follow, Spotify);
+
+	Follow.prototype.trigger = function(){
+		var self = this;
+		var follow = this.api.followArtists;
+		if(this.args.type === 'users'){
+			follow = this.api.followUsers;
+		}
+		_.each(this.args, function(args){
+			follow(args.ids, function(request){
+				if(!request){
+					// ### Once following the artist
+					var artist_names = [];
+					_.each(args.ids, function(id){
+						if(self.settings[id] && self.settings[id].name){
+							// Mark the action as complete;
+							artist_names.push(self.settings[id].name);
+							self.complete(id, null);
+						}else{
+							// or make another API request to get some metadata for a prettier message,
+							self.api.getArtist(id, function(request, artist){
+								if(artist){
+									artist_names.push(artist.name);
+									// and then mark it as complete.
+									self.complete(id, artist);
+									if(artist_names.length === args.ids.length){
+										self.following(artist_names);
+									}
+								}
+							});
+						}
+					});
+					if(artist_names.length){
+						self.following(artist_names);
+					}
+				}else{
+					self.retry(request);
+				}
+			});
+		});
+	};
+
+	Follow.prototype.following = function(artist_names){
+		if(this.settings.message !== false){
+			var message = '<i class="icon icon-spotify"></i> Now Following' + (artist_names.length ? ': ' : ' ') + artist_names.join(", ");
+			require(["bolero.snackbar"], function(Snackbar){
+				Snackbar.add(message, true);
+			});
+		}
+	};
+
+	return Follow;
+});
+
+//## Follow Playlists
+define("bolero.social_actions.spotify.follow_playlist", ["underscore", "inherits", "bolero.social_actions.spotify", "googleanalytics"],
+function(_, inherits, Spotify){
+	"use strict";
+	function FollowPlaylist(){
+		Spotify.apply(this, arguments);
+		this.isComplete("ids");
+	}
+	inherits(FollowPlaylist, Spotify);
+
+	FollowPlaylist.prototype.trigger = function(){
+		var self = this;
+		_.each(this.args, function(args){
+			self.api.followPlaylist(args.user_id, args.ids, function(request){
+				if(!request){
+					// ### Once following the playlist
+					if(self.settings[args.ids] && self.settings[args.ids].name){
+						// Mark the action as complete
+						self.complete(args.ids, null);
+						self.following(self.settings[args.ids].name);
+					}else{
+						// Or request some playlist metadata
+						self.api.getPlaylist(args.user_id, args.ids, function(request, playlist){
+							if(playlist){
+								// and then mark it as complete.
+								self.complete(args.ids, playlist);
+								self.following(playlist.name);
+							}
+						});
+					}
+				}else{
+					self.retry(request);
+				}
+			});
+		});
+	};
+
+	FollowPlaylist.prototype.following = function(playlist_name){
+		if(this.settings.message !== false){
+			var message = '<i class="icon icon-spotify"></i> Now Following ' + playlist_name;
+			require(["bolero.snackbar"], function(Snackbar){
+				Snackbar.add(message, true);
+			});
+		}
+	};
+
+	return FollowPlaylist;
+});
+
+//## Save Albums To Library
+define("bolero.social_actions.spotify.library", ["underscore", "inherits", "bolero.social_actions.spotify", "googleanalytics"],
+function(_, inherits, Spotify){
+	"use strict";
+	function Library(){
+		Spotify.apply(this, arguments);
+		this.isComplete("ids");
+	}
+	inherits(Library, Spotify);
+
+	Library.prototype.trigger = function(){
+		var self = this;
+		_.each(this.args, function(args){
+			self.api[self.save](args.ids, function(request){
+				if(!request){
+					// ### Once the tracks / albums have been saved
+					var library_names = [];
+					_.each(args.ids, function(id){
+						if(self.settings[id] && self.settings[id].name){
+							library_names.push(self.settings[id].name);
+							self.complete(id, null);
+						}else{
+							self.api[self.get](id, function(request, album){
+								if(album){
+									library_names.push(album.name);
+									self.complete(id, album);
+									if(library_names.length === args.ids.length){
+										self.saved(library_names);
+									}
+								}
+							});
+						}
+					});
+					if(library_names.length){
+						self.saved(library_names);
+					}
+				}else{
+					self.retry(request);
+				}
+			});
+		});
+	};
+
+	Library.prototype.saved = function(names, m){
+		m =  m || ' saved to Your Music';
+		if(this.settings.message !== false){
+			var message = '<i class="icon icon-spotify"></i> ' + names.join(", ") + m;
+			require(["bolero.snackbar"], function(Snackbar){
+				Snackbar.add(message, true);
+			});
+		}
+	};
+
+	return Library;
+});
+
+//## Save Albums To Library
+define("bolero.social_actions.spotify.library_albums", ["underscore", "inherits", "bolero.social_actions.spotify.library", "googleanalytics"],
+function(_, inherits, Library){
+	"use strict";
+	function SaveAlbums(){
+		Library.apply(this, arguments);
+		this.save = "addToMySavedAlbums";
+		this.get = "getAlbum";
+	}
+	inherits(SaveAlbums, Library);
+
+	SaveAlbums.prototype.saved = function(names){
+		var m = ' saved to <a href="https://play.spotify.com/collection/albums" target="_blank">Your Albums</a>.';
+		Library.prototype.saved.apply(this, [names, m]);
+	};
+
+	return SaveAlbums;
+});
+
+//## Save Tracks To Library
+define("bolero.social_actions.spotify.library_tracks", ["underscore", "inherits", "bolero.social_actions.spotify.library", "googleanalytics"],
+function(_, inherits, Library){
+	"use strict";
+	function SaveTracks(){
+		Library.apply(this, arguments);
+		this.save = "addToMySavedTracks";
+		this.get = "getTrack";
+	}
+	inherits(SaveTracks, Library);
+
+	SaveTracks.prototype.saved = function(names){
+		var m = ' saved to <a href="https://play.spotify.com/collection/songs" target="_blank">Your Songs</a>.';
+		Library.prototype.saved.apply(this, [names, m]);
+	};
+
+	return SaveTracks;
+});
+
+// ## Add Tracks To Playlist
+define("bolero.social_actions.spotify.playlist_tracks", ["jquery", "underscore", "handlebars", "inherits", "bolero.social_actions.spotify", "googleanalytics"],
+function($, _, Handlebars, inherits, Spotify){
+	"use strict";
+	function AddToPlaylist(){
+		Spotify.apply(this, arguments);
+		this.isComplete("uris");
+		this.retry = _.bind( this.retry, this);
+	}
+	inherits(AddToPlaylist, Spotify);
+
+	// ## Prepare track list
+	AddToPlaylist.prototype.trigger = function(){
+		var self = this;
+		var tracks = {}, playlists = {}, playlists_loaded = false;
+		_.each(this.args, function(args){
+			_.each(args.uris, function(uri){
+				tracks[uri] = false;
+			});
+		});
+		// ### Request Any Album Tracks
+		_.each(tracks, function(val, uri){
+			if(uri.indexOf("album") > 0){
+				var id = _.last(uri.split(":"));
+				self.api.getAlbumTracks(id, function(request, t){
+					if(!request){
+						// Add album track uris;
+						_.each(t.items, function(track){
+							tracks[track.uri] = true;
+						});
+						delete tracks[uri];
+						ready();
+					}else{
+						self.retry(request);
+					}
+				});
+			}else{
+				tracks[uri] = true;
+			}
+		});
+
+		// ### Request User Playlists
+		this.api.getUserPlaylists(function(request, p){
+			if(!request){
+				// Add the user's playlists
+				_.each(p.items, function(playlist){
+					if(playlist.collaborative || playlist.owner.id === self.service.UserID){
+						// If the user has access to the playlist
+						playlists[playlist.id] = playlist;
+					}
+				});
+				playlists_loaded = true;
+				ready();
+			}else{
+				self.retry(request);
+			}
+		});
+
+		function ready(){
+			var tracks_loaded = true;
+			_.each(tracks, function(loaded){ if(loaded === false){ tracks_loaded = false; } });
+			if(playlists_loaded && tracks_loaded){
+				// If all uris are loaded
+				self.show(_.keys(tracks), playlists);
+			}
+		}
+	};
+
+	// ### Modal Templates
+	//TODO add to Your Music
+	AddToPlaylist.modal_template = Handlebars.compile('<div id="{{id}}--modal" class="reveal-modal" data-reveal aria-labelledby="Add Tracks to Playlist" aria-hidden="true" role="dialog" ><h5>Add {{num_tracks}} Track(s) to Your <i class="icon icon-spotify"></i> Spotify Playlists</h5><select class="user-playlists" multiple size="5" >{{#each playlists}}<option label="{{name}}" value="{{id}}">{{name}}</option>{{/each}}</select><footer><span class="button-wrapper"><button class="button add-tracks">Add Tracks</button><label class="description" > to the playlists selected above.</label></span> <span class="button-wrapper"><button class="button create-new-playlist">Create</button><label class="description" > a new playlist.</label></span></footer><a class="close-reveal-modal" aria-label="Close">&#215;</a></div>');
+	AddToPlaylist.create_template = Handlebars.compile('<div id="{{id}}--modal-create" class="reveal-modal" data-reveal aria-labelledby="Create a Playlist" aria-hidden="true" role="dialog" ><h5>Create a <i class="icon icon-spotify"></i> Spotify Playlist</h5><footer><div><label>Playlist Name:</label><input type="text" name="playlist_name" ></div><span class="button-wrapper"><button class="button create-playlist">Create</button><label class="description" > a new playlist with the name entered above.</label></span> <button class="button back">Back</button></footer><a class="close-reveal-modal" aria-label="Close">&#215;</a></div>');
+
+	// ### Create a Playlist
+	AddToPlaylist.prototype.create = function(tracks, playlists){
+		var $modal = $("#"+this.id+"--modal-create"), $playlist_name, template_data = { id: this.id, playlists: playlists}, self = this;
+		// On create
+		if($modal.length === 0){
+			$modal = $(AddToPlaylist.create_template(template_data));
+			$playlist_name = $modal.find("input[name=playlist_name]");
+			$modal.appendTo("body");
+			$modal.find("button.back").on("click", function(){ self.show(tracks, playlists); $modal.foundation('reveal', 'close'); });
+			$modal.find("button.create-playlist").on("click", function(){
+				var playlist_name = $playlist_name.val();
+				if(playlist_name === ""){
+					require(["bolero.snackbar"], function(Snackbar){
+						Snackbar.add("Please enter playlist a name", true, null, { type: "error" });
+					});
+					return;
+				}
+				$playlist_name.empty();
+				self.api.createPlaylist(self.service.UserID, { name: playlist_name }, function(request, playlist){
+					if(playlist){
+						playlists[playlist.id] = playlist;
+						self.show(tracks, playlists, true);
+						$modal.foundation('reveal', 'close');
+						ga("send", "event", "Social Action", "playlist_created", self.id, null);
+					}else{
+						// Error
+						require(["bolero.snackbar"], function(Snackbar){
+							Snackbar.add("An error occurred, please try again.", true, null, { type: "error" });
+						});
+
+						$modal.foundation('reveal', 'close');
+						self.retry(request);
+					}
+				});
+			});
+		}
+		require(["foundation.reveal"], function(){
+			var options = {};
+			if(self.settings.roadblock === true){
+				options.close_on_background_click = false;
+				options.close_on_esc = false;
+				options.bg_class = "reveal-modal-bg--roadblock";
+				$modal.find(".close-reveal-modal").remove();
+			}
+			$modal.foundation('reveal', 'open', options);
+			ga("send", "event", "Social Action", "open", "create_playlist."+self.id, null);
+		});
+	};
+
+	// ### Prompt to Select Playlist
+	AddToPlaylist.prototype.show = function(tracks, playlists, rebuild){
+		// ### Build the template js, foundation.show
+		var num_playlists = _.keys(playlists).length,
+			num_tracks = _.keys(tracks).length, self = this;
+		if(num_playlists === 0){
+			return self.create(tracks, playlists);
+		}
+		var $modal = $("#"+this.id+"--modal"), template_data = { id: this.id, playlists: playlists, num_tracks: num_tracks };
+		if($modal.length === 0 || rebuild){
+			var $html = $(AddToPlaylist.modal_template(template_data));
+			if($modal.length && rebuild){
+				$modal.find("select.user-playlists").replaceWith($html.find("select.user-playlists"));
+			}else{
+				$modal = $html;
+				$modal.appendTo("body");
+				$modal.find("button.add-tracks").on("click", _.bind(this.submit, this, $modal, tracks, playlists));
+				$modal.find("button.create-new-playlist").on("click", _.bind(this.create, this, tracks, playlists));
+			}
+			$modal.find("select.user-playlists").children().first().prop('selected', true);
+		}
+		require(["foundation.reveal"], function(){
+			var options = {};
+			if(self.settings.roadblock === true){
+				options.close_on_background_click = false;
+				options.close_on_esc = false;
+				options.bg_class = "reveal-modal-bg--roadblock";
+				$modal.find(".close-reveal-modal").remove();
+			}
+			$modal.foundation('reveal', 'open', options);
+			ga("send", "event", "Social Action", "open", "add_to_playlist."+self.id, null);
+		});
+	};
+	// ### Add Playlists
+	AddToPlaylist.prototype.submit = function($modal, tracks, playlists){
+		var $playlists = $modal.find("select.user-playlists option:selected"),
+			num_tracks = _.keys(tracks).length,
+			playlist_ids = [], self = this;
+		$playlists.each(function(){ playlist_ids.push($(this).val()); });
+
+		if(playlist_ids.length === 0){
+			require(["bolero.snackbar"], function(Snackbar){
+				Snackbar.clear().add("Please Select a Playlist", true, null, { type: "error" });
+			});
+			return;
+		}
+
+		_.each(playlist_ids, function(playlist_id){
+			self.api.addTracksToPlaylist(playlists[playlist_id].owner.id, playlist_id, tracks, function(request, result){
+				if(result){
+					self.added(playlists[playlist_id].name, num_tracks);
+					_.each(self.args, function(arg){
+						_.each(arg.uris, function(uri){
+							self.complete(uri, result);
+						});
+					});
+				}else{
+					// An error occurred.
+					require(["bolero.snackbar"], function(Snackbar){
+						Snackbar.add("An error occurred, please try again.", true, null, { type: "error" });
+					});
+					self.retry(request);
+				}
+			});
+		});
+		$modal.foundation('reveal', 'close');
+	};
+
+	AddToPlaylist.prototype.added = function(playlist_name, num_tracks){
+		if(this.settings.message !== false){
+			var message = '<i class="icon icon-spotify"></i> '+num_tracks+' Tracks added to: ' + playlist_name;
+			require(["bolero.snackbar"], function(Snackbar){
+				Snackbar.add(message, true);
+			});
+		}
+	};
+
+	return AddToPlaylist;
+});
+;
+/**
+ * @file bolero.social_actions.js
+ */
+/*globals require, requirejs, define, jQuery, Drupal, IGA, aeJS, Modernizr */
+define("bolero.social_actions", ["jquery", "underscore", "inherits", "EventEmitter.history", "EventEmitter.namespace", "IGA.events", "googleanalytics"],
+	function($, _, inherits, HistoryEmitter, NamespaceEmitter, events){
+	"use strict";
+	var dbae = Drupal.behaviors.ae_social_login,
+		dsae = Drupal.settings.ae_social_login,
+		dsbul = Drupal.settings.bolero_user_login;
+	var Core = function(action){
+		var self = this;
+		this.trigger = _.bind( this.trigger, this);
+		this.authenticate = _.bind( this.authenticate, this);
+		this.onLogin = _.bind(_.debounce(this.onLogin, 100, true), this);
+		this.id = action.id;
+		this.social = action.social;
+		this.action = action.action;
+		this.args = action.args;
+		this.settings = _.extend({ ignoreOptout: false, remote_only: true }, action.settings);
+		this.data = { completed: 0, required: 0};
+		this.events = Core.events;
+		require(["IGA.user", "AE.user"], function(user, AEUser){
+			self.user = user;
+			var ae_user = user.ae_user;
+			if(self.settings.remote_only && AEUser){ ae_user = AEUser; }
+			self.ae_user = ae_user;
+			if(ae_user){
+				for(var s in ae_user.services){
+					if(ae_user.services[s].Service === self.social){
+						self.service = ae_user.services[s];
+						break;
+					}
+				}
+				if(self.service){
+					self.init();
+					self.events.on(self.id, self.trigger).replay(self.id, self.trigger);
+				}
+			}
+			if(!self.service){
+				self.init();
+				self.events.on(self.id, self.authenticate).replay(self.id, self.authenticate);
+				events.on("ae_login", function(ae_user){
+					for(var s in ae_user.services){
+						if(ae_user.services[s].Service === self.social){
+							self.service = ae_user.services[s];
+							self.ae_user = ae_user;
+							// If logged in via another action, we can trigger instead of authenticate.
+							self.events.off(self.id, self.authenticate);
+							self.events.on(self.id, self.trigger);
+							break;
+						}
+					}
+				});
+			}
+		});
+
+		// ### Trigger on Login
+		function attachClick(){
+			var $element = $(self.settings.selector);
+			$element.on("click", function(){
+				// If performing a mobile redirect login then trigger on next page.
+				if(dsbul.isMobile){ Core.setPostLoginActions([self.id]); }
+			});
+
+			function login($el, user, type, sso){
+				if($el[0] !== $element[0]){ return; }
+				self.onLogin(user, type, sso);
+			}
+			events.on("element_ae_login", login).replay("element_ae_login", login);
+		}
+		if(this.settings.selector && this.settings.attach !== false){
+			// If a selector is provided this action will be triggered after a
+			// login via a click on that element.
+			_.defer(attachClick);
+		}
+
+	};
+	Core.complete = {};
+
+	function SocialEvents(){
+		HistoryEmitter.apply(this, arguments);
+	}
+	inherits(SocialEvents, HistoryEmitter);
+	NamespaceEmitter.inherit(SocialEvents);
+	Core.events = new SocialEvents();
+
+	Core.prototype.init = function(){};
+	Core.prototype.setAccessToken = function(){};
+	Core.prototype.trigger = function(e){
+		IGA.setConversion("bolero."+this.social+"."+this.action);
+		ga("send", "event", "Social Action", "trigger", this.id, null);
+	};
+	Core.prototype.on = function(event, callback){
+		this.events.on(this.id+"."+event, callback);
+	};
+	Core.prototype.authenticate = function(e, options){
+		var self = this;
+		if(!e){
+			// Authentication requires user action.
+			return;
+		}
+		if(typeof aeJS === 'undefined'){
+			// Wait for AE to load
+			events.on("ae_ready", function(){ self.authenticate(e, options); });
+		}
+		options = options || {};
+		// ### Login
+		if(dsbul.isMobile){
+			// Set post-login actions now because we're about to redirect.
+			Core.setPostLoginActions([this.id]);
+		}
+		if(this.settings.remote_only){
+			// but maybe not login to the site.
+			dbae.setRemoteOnly();
+		}
+		IGA.setConversion("bolero."+this.social+"."+this.action, true);
+		ga("send", "event", "Social Action", "authenticate", this.id, null);
+		aeJS.trigger.authenticate(this.social, dbae.auth);
+		events.once("ae_login", this.onLogin);
+		// After this login or any other login detach
+		function onWindow(state){
+			if(state.state === "closed"){
+				events.off("ae_login", self.onLogin);
+				events.off("ae_window", onWindow);
+			}
+		}
+		events.on("ae_window", onWindow);
+	};
+
+	//### On AE User Login
+	Core.prototype.onLogin = function(ae_user, type, sso){
+		if(this.settings.remote_only){
+			// If we aren't going to reload the page then:
+			// Set the service for the logged-in AE user
+			this.ae_user = ae_user;
+			for(var s in ae_user.services){
+				if(ae_user.services[s].Service === this.social){
+					this.service = ae_user.services[s];
+					break;
+				}
+			}
+			this.init();
+			// And trigger action right now.
+			if(!dbae.isMobile){ this.trigger(); }
+		}else{
+			// Otherwise, set this as a post-login action to be triggered after the page reload.
+			Core.setPostLoginActions([this.id]);
+		}
+	};
+
+	Core.postLoginActions = [];
+	Core.setPostLoginActions = function(actions){
+		Core.postLoginActions = _.union(Core.postLoginActions, actions);
+		Core.savePostLoginActions();
+	};
+
+	Core.savePostLoginActions = _.debounce(function(){
+		$.cookie("bolero_social_login_actions", JSON.stringify(Core.postLoginActions), { path:'/' });
+	}, 10);
+
+	Core.prototype.post = function(){
+		//TODO some way to make post serial.
+		var data = { args: this.args };
+		if(this.ae_user){ // if((!this.user || !this.user.uid) && this.ae_user)
+			data.ae_user = this.ae_user;
+		}
+
+		return $.ajax("/api/bolero/social/" + this.social +"/"+ this.action, {
+			type: "POST",
+			data: data
+		});
+	};
+
+	Core.prototype.refreshToken = function(){
+		var self = this;
+		var data = {};
+		if((!this.user || !this.user.uid) && this.ae_user){
+			data.ae_user = this.ae_user;
+		}
+		return $.ajax("/api/bolero/social/"+this.social+"/refresh_token", {
+			type: "POST",
+			data: data
+		}).done(function(response){
+			if(response.AccessToken){
+				self.service.Token = response.AccessToken;
+				self.setAccessToken(response.AccessToken);
+				events.trigger("user.update", [self.user]);
+			}
+		});
+	};
+
+	Core.prototype.isComplete = function(actionKey){
+		var self = this;
+		actionKey = actionKey || _.keys(this.args[0])[0];
+		this.data.required = 0;
+		for(var i = 0; i < this.args.length; i++){
+			var keys = this.args[i][actionKey];
+			if(!_.isArray(keys)){ keys = [keys]; }
+			this.data.required += keys.length;
+			_.each(keys, function(k){
+				var key = (self.social+"."+self.action+"."+ k).toLowerCase(),
+					alreadyComplete = Boolean(localStorage.getItem(key));
+				if(alreadyComplete){
+					var complete = _.reduce([k.toLowerCase(), self.action, self.social], function(l, r){
+						var c = {}; if(!l){ c[r] = true; }else{ c[r] = l; } return c;
+					}, null);
+					$.extend(true, Core.complete, complete);
+					self.events.trigger("already_completed." + key, [self.args[i]]);
+					if(self.settings.selector){
+						$(self.settings.selector).addClass("bolero-social-action--complete").addClass('complete--' + key.replace(/\./g, "-"));
+					}
+					self.data.completed++;
+				}
+			});
+		}
+		if(this.data.completed >= this.data.required){
+			this.events.trigger("already_completed."+self.id, [self.args[i]]);
+		}
+	};
+
+	Core.prototype.complete = function(actionKey, data){
+		this.data.completed++;
+		var key = (this.social+"."+this.action+"."+actionKey).toLowerCase();
+		this.events.trigger("complete."+key, [actionKey, data]);
+		localStorage.setItem(key, true);
+		if(this.data.completed >= this.data.required){
+			var complete = _.reduce([actionKey.toLowerCase(), this.action, this.social], function(l, r){
+				var c = {}; if(!l){ c[r] = true; }else{ c[r] = l; } return c;
+			}, null);
+			$.extend(true, Core.complete, complete);
+			this.events.trigger("complete."+this.id, [this]);
+			this.email_modal();
+			if(this.settings.selector){
+				$(this.settings.selector).addClass("bolero-social-action--complete").addClass('complete--' + key.replace(/\./g, "-"));
+			}
+			ga("send", "event", "Social Action", "complete", this.id, null);
+		}
+		var label = actionKey;
+		if(this.settings.name && this.settings.name[actionKey]){
+			label = this.settings.name[actionKey] + " ("+label+")";
+		}
+		ga("send", "event", "Social Action", this.action+"."+this.social, label, null);
+	};
+
+	Core.prototype.email_modal = function(){
+		var self = this;
+		if(self.settings.mailinglist_optin !== 1){ return; }
+		require(["ExactTarget"], function(ET){
+			// If the user is already subscribed then we shouldn't ask them again
+			if(ET.isSubscribedToLists(null, self.settings.ignoreOptout ? false : true )){ return; }
+			var options = {
+				classes: "bolero-social-actions",
+				bg_class: "reveal-modal-bg--bolero-social",
+				ga_dimensions:{
+					"dimension3": self.social
+				}
+			};
+			if(self.settings.mailinglist_title){
+				options.title = self.settings.mailinglist_title;
+			}
+			if(self.settings.mailinglist_header){
+				options.header = self.settings.mailinglist_header.value;
+			}
+			if(self.settings.campaign){
+				options.campaign = self.settings.campaign;
+			}
+			ET.modal.open(null, options);
+		});
+	};
+
+	return Core;
+});
+
+require(["jquery", "underscore", "bolero.social_actions", "IGA.webshim.storage"], function($, _, Actions){
+	"use strict";
+	var actionsCookie = $.cookie("bolero_social_login_actions"),
+		savedActions = localStorage.getItem("bolero_social_actions_saved"),
+		login_actions = [],
+		settings = Drupal.settings.bolero_social_actions,
+		dbae = Drupal.behaviors.ae_social_login;
+	if(actionsCookie){
+		login_actions = JSON.parse(actionsCookie);
+		$.cookie("bolero_social_login_actions", null, { path:'/' });
+	}
+	if(savedActions){
+		_.extend(settings.actions, JSON.parse(savedActions));
+		localStorage.removeItem("bolero_social_actions_saved");
+	}
+
+	function init(){
+		_.each(settings.actions, function(action){
+			var mod = "bolero.social_actions."  + action.social + "." + action.action;
+			if(!require.specified(mod) || action.instance){ return; }
+			require([mod], function(Action){
+				action.instance = new Action(action);
+				if(login_actions.indexOf(action.id) >= 0){
+					// Note: If service isn't connected login action will fail.
+					Actions.events.trigger(action.id, [false]);
+				}
+			});
+		});
+
+		if(settings.preserveActions){
+			localStorage.setItem("bolero_social_actions_saved", JSON.stringify(settings.actions));
+		}
+	}
+
+	init();
+	Actions.events.on("attached", init);
+});
+
+(function($){
+	"use strict";
+	var dsba = Drupal.settings.bolero_social_actions,
+		dbbsa = Drupal.behaviors.bolero_social_actions = {
+		attach: function(context, settings){
+			if(context !== document){
+				require(["bolero.social_actions"], function(Actions){
+					Actions.events.trigger("attached", [settings]);
+				});
+			}
+			$("button.bolero-social-button", context).once("bsa-attached", function(){
+				dbbsa.attach_button($(this));
+			});
+		},
+		attach_button: function($btn){
+			var actionId = $btn.attr("data-action-id"),
+				// TODO support multiple comma-separated actionIds
+				action_settings = dsba.actions[actionId];
+			if(!action_settings){ return; }
+			var social = action_settings.social,
+				action = action_settings.action,
+			    //! iOS treats click as a qtip show so we don't show tooltips at all on mobile.
+				useTooltip = typeof Modernizr !== undefined && Modernizr.mq && Modernizr.mq("(min-width: 1025px)"),
+				qtip_settings = {
+				style: { classes: "ui-tooltip-shadow ui-tooltip-button ui-tooltip-bolero" },
+				position: { my: "top center", at: "bottom center" },
+				tip: { corner:false } };
+
+			require(["underscore", "bolero.social_actions", "IGA.user", "AE.user", "qtip"], function(_, Actions, user, ae_user){
+				function click(e){
+					Actions.events.trigger(actionId, [e]);
+				}
+				var complete = _.once(function(args){
+					var $icon = $btn.find("i");
+					$icon.removeClass().addClass("icon icon-ok-1");
+					if(action_settings.settings.label_complete){
+						var lbl = $btn.find("span.btn-text > .action").text(), title = $btn.attr("title");
+						$btn.find("span.btn-text > .action").text(action_settings.settings.label_complete);
+						$btn.attr("title", title.replace(action_settings.settings.label, action_settings.settings.label_complete));
+						if(useTooltip){
+							$btn.qtip(qtip_settings);
+						}
+					}
+					//$btn.off("click", click);
+				});
+
+				// Attach event to button click
+				$btn.on("click", click);
+
+				if(useTooltip){
+					$btn.qtip(qtip_settings);
+				}else{
+					$btn.attr("title", "");
+				}
+
+				$btn.closest(".bolero-social-button--wrapper").each(function(){
+					$(this).find("h5.name > span.more").qtip(qtip_settings);
+				});
+
+				//### Already Completed
+				var action_complete_event = "complete."+actionId,
+					action_already_complete_event = "already_completed."+actionId;
+				//#### Other actions completed
+				/*_.each(action_settings.args, function(args){
+					var keys = _.first(args), numCompleted = 0;
+					if(!_.isArray(keys)){ keys = [keys]; }
+					_.each(keys, function(key){
+						events.on(social+".already_"+action+"."+key, function(){
+							numCompleted++;
+							if(numCompleted === keys.length){ alreadyComplete(); }
+						});//.replay()
+					});
+				});*/
+				Actions.events.on(action_complete_event, complete).replay(action_complete_event, complete);
+				if(!action_settings.settings.repeat && (user.uid || ae_user.data)){
+					Actions.events.on(action_already_complete_event, complete).replay(action_already_complete_event, complete);
+				}
+			});
+		}
+	};
+})(jQuery);
+;
