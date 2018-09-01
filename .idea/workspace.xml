@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="99ad685b-f3ca-4e2d-840e-a8dd606d0f96" name="Default Changelist" comment="">
+    <list default="true" id="99ad685b-f3ca-4e2d-840e-a8dd606d0f96" name="Default Changelist" comment="Pagina de shows e de musica feitas">
+      <change afterPath="$PROJECT_DIR$/music.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/showtime.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/bootstrap.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/bootstrap.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/home.html" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -20,19 +20,20 @@
     <session id="78307461">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.21" value="1" />
           <entry key="project.open.time.37" value="1" />
           <entry key="project.open.time.43" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.open.time.45" value="1" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="css" value="5" />
           <entry key="download" value="1" />
-          <entry key="html" value="5" />
-          <entry key="jpg" value="14" />
+          <entry key="html" value="9" />
+          <entry key="jpg" value="29" />
           <entry key="js" value="1" />
           <entry key="png" value="7" />
         </counts>
@@ -40,8 +41,8 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="5" />
-          <entry key="HTML" value="5" />
-          <entry key="Image" value="21" />
+          <entry key="HTML" value="9" />
+          <entry key="Image" value="36" />
           <entry key="JavaScript" value="1" />
           <entry key="PLAIN_TEXT" value="1" />
         </counts>
@@ -49,53 +50,45 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="css" value="45" />
-          <entry key="html" value="2656" />
+          <entry key="html" value="3049" />
+          <entry key="txt" value="38" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="45" />
-          <entry key="HTML" value="2656" />
+          <entry key="HTML" value="3049" />
+          <entry key="PLAIN_TEXT" value="38" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/home.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="196" column="29" selection-start-line="196" selection-start-column="29" selection-end-line="196" selection-end-column="29" />
+            <state relative-caret-position="204">
+              <caret line="176" column="65" lean-forward="true" selection-start-line="176" selection-start-column="32" selection-end-line="176" selection-end-column="65" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/music.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="74">
+              <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+              <folding>
+                <element signature="n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/bootstrap.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="194">
-              <caret line="6145" column="27" selection-start-line="6145" selection-start-column="27" selection-end-line="6145" selection-end-column="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/styles.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="29" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/01. projeto-completo-bootstrap-4.1.3/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="36" column="83" selection-start-line="36" selection-start-column="83" selection-end-line="36" selection-end-column="83" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/88dca81c8f0bdec670e222feb3f3aa884bc15228.jpg">
+          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
     </leaf>
@@ -103,8 +96,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="CSS File" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -126,7 +119,9 @@
         <option value="$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ Official Site.html" />
         <option value="$PROJECT_DIR$/css/bootstrap.css" />
         <option value="$PROJECT_DIR$/css/styles.css" />
+        <option value="$PROJECT_DIR$/showtime.html" />
         <option value="$PROJECT_DIR$/home.html" />
+        <option value="$PROJECT_DIR$/music.html" />
       </list>
     </option>
   </component>
@@ -148,7 +143,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -156,25 +150,11 @@
               <item name="The Killers - Trabalho 1" type="b2602c69:ProjectViewProjectNode" />
               <item name="The Killers - Trabalho 1" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="The Killers - Trabalho 1" type="b2602c69:ProjectViewProjectNode" />
-              <item name="The Killers - Trabalho 1" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="The Killers - Trabalho 1" type="b2602c69:ProjectViewProjectNode" />
-              <item name="The Killers - Trabalho 1" type="462c0819:PsiDirectoryNode" />
-              <item name="js" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="The Killers - Trabalho 1" type="b2602c69:ProjectViewProjectNode" />
-              <item name="The Killers - Trabalho 1" type="462c0819:PsiDirectoryNode" />
-              <item name="The Killers _ Official Site_files" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -184,11 +164,11 @@
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\raffa\Desktop\Trabalhos 9 Periodo\Desenvolvimento Web\The Killers - Trabalho 1\The Killers _ Official Site_files" />
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\raffa\Desktop\Trabalhos 9 Periodo\Desenvolvimento Web\The Killers - Trabalho 1\js" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\raffa\Desktop\Trabalhos 9 Periodo\Desenvolvimento Web\The Killers - Trabalho 1\The Killers _ Official Site_files" />
       <recent name="C:\Users\raffa\Desktop\Trabalhos 9 Periodo\Desenvolvimento Web\The Killers - Trabalho 1\js" />
     </key>
   </component>
@@ -216,16 +196,16 @@
       <updated>1535300415843</updated>
       <workItem from="1535300422997" duration="9803000" />
       <workItem from="1535379974762" duration="2069000" />
-      <workItem from="1535503212927" duration="4206000" />
+      <workItem from="1535503212927" duration="4391000" />
+      <workItem from="1535812722339" duration="3825000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16078000" />
+    <option name="totallyTimeSpent" value="20088000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24181548" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -251,6 +231,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Pagina de shows e de musica feitas" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pagina de shows e de musica feitas" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/asf.custom-v2.js.download">
@@ -288,19 +272,12 @@
     <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/box_set-banner.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/01. projeto-completo-bootstrap-4.1.3/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="36" column="83" selection-start-line="36" selection-start-column="83" selection-end-line="36" selection-end-column="83" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/css/bootstrap.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
+        <state relative-caret-position="104465">
           <caret line="6145" column="27" selection-start-line="6145" selection-start-column="27" selection-end-line="6145" selection-end-column="27" />
         </state>
       </provider>
@@ -312,10 +289,64 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/01. projeto-completo-bootstrap-4.1.3/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="36" column="83" selection-start-line="36" selection-start-column="83" selection-end-line="36" selection-end-column="83" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/showtime.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="82" column="25" selection-start-line="82" selection-start-column="25" selection-end-line="82" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0(1).jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0_0(1).jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0_0.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0(2).jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/49d01f27dcf8f6bec2ba4f16038bd22e309ae2d0.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/e2e9fb9dfc3af433b9f8daee6488e9ed26eebffa.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/1096b9d5bbc528eda9f839e96564fff7c19585ec.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/8186cfcdf268de204a676ed304cbb73787c705d3.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/3f0fbe9f05ce17126f3c075151cd71cb7f0ea344.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/The Killers _ Official Site_files/The Killers _ More Music_files/88dca81c8f0bdec670e222feb3f3aa884bc15228.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/home.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="196" column="29" selection-start-line="196" selection-start-column="29" selection-end-line="196" selection-end-column="29" />
+        <state relative-caret-position="204">
+          <caret line="176" column="65" lean-forward="true" selection-start-line="176" selection-start-column="32" selection-end-line="176" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/music.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="74">
+          <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
+          <folding>
+            <element signature="n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" />
+          </folding>
         </state>
       </provider>
     </entry>
