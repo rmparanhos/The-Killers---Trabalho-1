@@ -1,0 +1,1579 @@
+/*!
+ * jQuery Form Plugin
+ * version: 3.51.0-2014.06.20
+ * Requires jQuery v1.5 or later
+ * Copyright (c) 2014 M. Alsup
+ * Examples and documentation at: http://malsup.com/jquery/form/
+ * Project repository: https://github.com/malsup/form
+ * Dual licensed under the MIT and GPL licenses.
+ * https://github.com/malsup/form#copyright-and-license
+ */
+!function(e){"use strict";e("undefined"!=typeof jQuery?jQuery:window.Zepto)}(function(e){"use strict";function t(t){var r=t.data;t.isDefaultPrevented()||(t.preventDefault(),e(t.target).ajaxSubmit(r))}function r(t){var r=t.target,a=e(r);if(!a.is("[type=submit],[type=image]")){var n=a.closest("[type=submit]");if(0===n.length)return;r=n[0]}var i=this;if(i.clk=r,"image"==r.type)if(void 0!==t.offsetX)i.clk_x=t.offsetX,i.clk_y=t.offsetY;else if("function"==typeof e.fn.offset){var o=a.offset();i.clk_x=t.pageX-o.left,i.clk_y=t.pageY-o.top}else i.clk_x=t.pageX-r.offsetLeft,i.clk_y=t.pageY-r.offsetTop;setTimeout(function(){i.clk=i.clk_x=i.clk_y=null},100)}function a(){if(e.fn.ajaxSubmit.debug){var t="[jquery.form] "+Array.prototype.join.call(arguments,"");window.console&&window.console.log?window.console.log(t):window.opera&&window.opera.postError&&window.opera.postError(t)}}var n={};n.fileapi=void 0!==e("<input type='file'/>").get(0).files,n.formdata=void 0!==window.FormData;var i=!!e.fn.prop;e.fn.attr2=function(){if(!i)return this.attr.apply(this,arguments);var e=this.prop.apply(this,arguments);return e&&e.jquery||"string"==typeof e?e:this.attr.apply(this,arguments)},e.fn.ajaxSubmit=function(t){function r(r){var a,n,i=e.param(r,t.traditional).split("&"),o=i.length,s=[];for(a=0;o>a;a++)i[a]=i[a].replace(/\+/g," "),n=i[a].split("="),s.push([decodeURIComponent(n[0]),decodeURIComponent(n[1])]);return s}function o(a){for(var n=new FormData,i=0;i<a.length;i++)n.append(a[i].name,a[i].value);if(t.extraData){var o=r(t.extraData);for(i=0;i<o.length;i++)o[i]&&n.append(o[i][0],o[i][1])}t.data=null;var s=e.extend(!0,{},e.ajaxSettings,t,{contentType:!1,processData:!1,cache:!1,type:u||"POST"});t.uploadProgress&&(s.xhr=function(){var r=e.ajaxSettings.xhr();return r.upload&&r.upload.addEventListener("progress",function(e){var r=0,a=e.loaded||e.position,n=e.total;e.lengthComputable&&(r=Math.ceil(a/n*100)),t.uploadProgress(e,a,n,r)},!1),r}),s.data=null;var c=s.beforeSend;return s.beforeSend=function(e,r){r.data=t.formData?t.formData:n,c&&c.call(this,e,r)},e.ajax(s)}function s(r){function n(e){var t=null;try{e.contentWindow&&(t=e.contentWindow.document)}catch(r){a("cannot get iframe.contentWindow document: "+r)}if(t)return t;try{t=e.contentDocument?e.contentDocument:e.document}catch(r){a("cannot get iframe.contentDocument: "+r),t=e.document}return t}function o(){function t(){try{var e=n(g).readyState;a("state = "+e),e&&"uninitialized"==e.toLowerCase()&&setTimeout(t,50)}catch(r){a("Server abort: ",r," (",r.name,")"),s(k),j&&clearTimeout(j),j=void 0}}var r=f.attr2("target"),i=f.attr2("action"),o="multipart/form-data",c=f.attr("enctype")||f.attr("encoding")||o;w.setAttribute("target",d),(!u||/post/i.test(u))&&w.setAttribute("method","POST"),i!=m.url&&w.setAttribute("action",m.url),m.skipEncodingOverride||u&&!/post/i.test(u)||f.attr({encoding:"multipart/form-data",enctype:"multipart/form-data"}),m.timeout&&(j=setTimeout(function(){T=!0,s(D)},m.timeout));var l=[];try{if(m.extraData)for(var p in m.extraData)m.extraData.hasOwnProperty(p)&&l.push(e.isPlainObject(m.extraData[p])&&m.extraData[p].hasOwnProperty("name")&&m.extraData[p].hasOwnProperty("value")?e('<input type="hidden" name="'+m.extraData[p].name+'">').val(m.extraData[p].value).appendTo(w)[0]:e('<input type="hidden" name="'+p+'">').val(m.extraData[p]).appendTo(w)[0]);m.iframeTarget||v.appendTo("body"),g.attachEvent?g.attachEvent("onload",s):g.addEventListener("load",s,!1),setTimeout(t,15);try{w.submit()}catch(h){var x=document.createElement("form").submit;x.apply(w)}}finally{w.setAttribute("action",i),w.setAttribute("enctype",c),r?w.setAttribute("target",r):f.removeAttr("target"),e(l).remove()}}function s(t){if(!x.aborted&&!F){if(M=n(g),M||(a("cannot access response document"),t=k),t===D&&x)return x.abort("timeout"),void S.reject(x,"timeout");if(t==k&&x)return x.abort("server abort"),void S.reject(x,"error","server abort");if(M&&M.location.href!=m.iframeSrc||T){g.detachEvent?g.detachEvent("onload",s):g.removeEventListener("load",s,!1);var r,i="success";try{if(T)throw"timeout";var o="xml"==m.dataType||M.XMLDocument||e.isXMLDoc(M);if(a("isXml="+o),!o&&window.opera&&(null===M.body||!M.body.innerHTML)&&--O)return a("requeing onLoad callback, DOM not available"),void setTimeout(s,250);var u=M.body?M.body:M.documentElement;x.responseText=u?u.innerHTML:null,x.responseXML=M.XMLDocument?M.XMLDocument:M,o&&(m.dataType="xml"),x.getResponseHeader=function(e){var t={"content-type":m.dataType};return t[e.toLowerCase()]},u&&(x.status=Number(u.getAttribute("status"))||x.status,x.statusText=u.getAttribute("statusText")||x.statusText);var c=(m.dataType||"").toLowerCase(),l=/(json|script|text)/.test(c);if(l||m.textarea){var f=M.getElementsByTagName("textarea")[0];if(f)x.responseText=f.value,x.status=Number(f.getAttribute("status"))||x.status,x.statusText=f.getAttribute("statusText")||x.statusText;else if(l){var d=M.getElementsByTagName("pre")[0],h=M.getElementsByTagName("body")[0];d?x.responseText=d.textContent?d.textContent:d.innerText:h&&(x.responseText=h.textContent?h.textContent:h.innerText)}}else"xml"==c&&!x.responseXML&&x.responseText&&(x.responseXML=X(x.responseText));try{E=_(x,c,m)}catch(b){i="parsererror",x.error=r=b||i}}catch(b){a("error caught: ",b),i="error",x.error=r=b||i}x.aborted&&(a("upload aborted"),i=null),x.status&&(i=x.status>=200&&x.status<300||304===x.status?"success":"error"),"success"===i?(m.success&&m.success.call(m.context,E,"success",x),S.resolve(x.responseText,"success",x),p&&e.event.trigger("ajaxSuccess",[x,m])):i&&(void 0===r&&(r=x.statusText),m.error&&m.error.call(m.context,x,i,r),S.reject(x,"error",r),p&&e.event.trigger("ajaxError",[x,m,r])),p&&e.event.trigger("ajaxComplete",[x,m]),p&&!--e.active&&e.event.trigger("ajaxStop"),m.complete&&m.complete.call(m.context,x,i),F=!0,m.timeout&&clearTimeout(j),setTimeout(function(){m.iframeTarget?v.attr("src",m.iframeSrc):v.remove(),x.responseXML=null},100)}}}var c,l,m,p,d,v,g,x,b,y,T,j,w=f[0],S=e.Deferred();if(S.abort=function(e){x.abort(e)},r)for(l=0;l<h.length;l++)c=e(h[l]),i?c.prop("disabled",!1):c.removeAttr("disabled");if(m=e.extend(!0,{},e.ajaxSettings,t),m.context=m.context||m,d="jqFormIO"+(new Date).getTime(),m.iframeTarget?(v=e(m.iframeTarget),y=v.attr2("name"),y?d=y:v.attr2("name",d)):(v=e('<iframe name="'+d+'" src="'+m.iframeSrc+'" />'),v.css({position:"absolute",top:"-1000px",left:"-1000px"})),g=v[0],x={aborted:0,responseText:null,responseXML:null,status:0,statusText:"n/a",getAllResponseHeaders:function(){},getResponseHeader:function(){},setRequestHeader:function(){},abort:function(t){var r="timeout"===t?"timeout":"aborted";a("aborting upload... "+r),this.aborted=1;try{g.contentWindow.document.execCommand&&g.contentWindow.document.execCommand("Stop")}catch(n){}v.attr("src",m.iframeSrc),x.error=r,m.error&&m.error.call(m.context,x,r,t),p&&e.event.trigger("ajaxError",[x,m,r]),m.complete&&m.complete.call(m.context,x,r)}},p=m.global,p&&0===e.active++&&e.event.trigger("ajaxStart"),p&&e.event.trigger("ajaxSend",[x,m]),m.beforeSend&&m.beforeSend.call(m.context,x,m)===!1)return m.global&&e.active--,S.reject(),S;if(x.aborted)return S.reject(),S;b=w.clk,b&&(y=b.name,y&&!b.disabled&&(m.extraData=m.extraData||{},m.extraData[y]=b.value,"image"==b.type&&(m.extraData[y+".x"]=w.clk_x,m.extraData[y+".y"]=w.clk_y)));var D=1,k=2,A=e("meta[name=csrf-token]").attr("content"),L=e("meta[name=csrf-param]").attr("content");L&&A&&(m.extraData=m.extraData||{},m.extraData[L]=A),m.forceSync?o():setTimeout(o,10);var E,M,F,O=50,X=e.parseXML||function(e,t){return window.ActiveXObject?(t=new ActiveXObject("Microsoft.XMLDOM"),t.async="false",t.loadXML(e)):t=(new DOMParser).parseFromString(e,"text/xml"),t&&t.documentElement&&"parsererror"!=t.documentElement.nodeName?t:null},C=e.parseJSON||function(e){return window.eval("("+e+")")},_=function(t,r,a){var n=t.getResponseHeader("content-type")||"",i="xml"===r||!r&&n.indexOf("xml")>=0,o=i?t.responseXML:t.responseText;return i&&"parsererror"===o.documentElement.nodeName&&e.error&&e.error("parsererror"),a&&a.dataFilter&&(o=a.dataFilter(o,r)),"string"==typeof o&&("json"===r||!r&&n.indexOf("json")>=0?o=C(o):("script"===r||!r&&n.indexOf("javascript")>=0)&&e.globalEval(o)),o};return S}if(!this.length)return a("ajaxSubmit: skipping submit process - no element selected"),this;var u,c,l,f=this;"function"==typeof t?t={success:t}:void 0===t&&(t={}),u=t.type||this.attr2("method"),c=t.url||this.attr2("action"),l="string"==typeof c?e.trim(c):"",l=l||window.location.href||"",l&&(l=(l.match(/^([^#]+)/)||[])[1]),t=e.extend(!0,{url:l,success:e.ajaxSettings.success,type:u||e.ajaxSettings.type,iframeSrc:/^https/i.test(window.location.href||"")?"javascript:false":"about:blank"},t);var m={};if(this.trigger("form-pre-serialize",[this,t,m]),m.veto)return a("ajaxSubmit: submit vetoed via form-pre-serialize trigger"),this;if(t.beforeSerialize&&t.beforeSerialize(this,t)===!1)return a("ajaxSubmit: submit aborted via beforeSerialize callback"),this;var p=t.traditional;void 0===p&&(p=e.ajaxSettings.traditional);var d,h=[],v=this.formToArray(t.semantic,h);if(t.data&&(t.extraData=t.data,d=e.param(t.data,p)),t.beforeSubmit&&t.beforeSubmit(v,this,t)===!1)return a("ajaxSubmit: submit aborted via beforeSubmit callback"),this;if(this.trigger("form-submit-validate",[v,this,t,m]),m.veto)return a("ajaxSubmit: submit vetoed via form-submit-validate trigger"),this;var g=e.param(v,p);d&&(g=g?g+"&"+d:d),"GET"==t.type.toUpperCase()?(t.url+=(t.url.indexOf("?")>=0?"&":"?")+g,t.data=null):t.data=g;var x=[];if(t.resetForm&&x.push(function(){f.resetForm()}),t.clearForm&&x.push(function(){f.clearForm(t.includeHidden)}),!t.dataType&&t.target){var b=t.success||function(){};x.push(function(r){var a=t.replaceTarget?"replaceWith":"html";e(t.target)[a](r).each(b,arguments)})}else t.success&&x.push(t.success);if(t.success=function(e,r,a){for(var n=t.context||this,i=0,o=x.length;o>i;i++)x[i].apply(n,[e,r,a||f,f])},t.error){var y=t.error;t.error=function(e,r,a){var n=t.context||this;y.apply(n,[e,r,a,f])}}if(t.complete){var T=t.complete;t.complete=function(e,r){var a=t.context||this;T.apply(a,[e,r,f])}}var j=e("input[type=file]:enabled",this).filter(function(){return""!==e(this).val()}),w=j.length>0,S="multipart/form-data",D=f.attr("enctype")==S||f.attr("encoding")==S,k=n.fileapi&&n.formdata;a("fileAPI :"+k);var A,L=(w||D)&&!k;t.iframe!==!1&&(t.iframe||L)?t.closeKeepAlive?e.get(t.closeKeepAlive,function(){A=s(v)}):A=s(v):A=(w||D)&&k?o(v):e.ajax(t),f.removeData("jqxhr").data("jqxhr",A);for(var E=0;E<h.length;E++)h[E]=null;return this.trigger("form-submit-notify",[this,t]),this},e.fn.ajaxForm=function(n){if(n=n||{},n.delegation=n.delegation&&e.isFunction(e.fn.on),!n.delegation&&0===this.length){var i={s:this.selector,c:this.context};return!e.isReady&&i.s?(a("DOM not ready, queuing ajaxForm"),e(function(){e(i.s,i.c).ajaxForm(n)}),this):(a("terminating; zero elements found by selector"+(e.isReady?"":" (DOM not ready)")),this)}return n.delegation?(e(document).off("submit.form-plugin",this.selector,t).off("click.form-plugin",this.selector,r).on("submit.form-plugin",this.selector,n,t).on("click.form-plugin",this.selector,n,r),this):this.ajaxFormUnbind().bind("submit.form-plugin",n,t).bind("click.form-plugin",n,r)},e.fn.ajaxFormUnbind=function(){return this.unbind("submit.form-plugin click.form-plugin")},e.fn.formToArray=function(t,r){var a=[];if(0===this.length)return a;var i,o=this[0],s=this.attr("id"),u=t?o.getElementsByTagName("*"):o.elements;if(u&&!/MSIE [678]/.test(navigator.userAgent)&&(u=e(u).get()),s&&(i=e(':input[form="'+s+'"]').get(),i.length&&(u=(u||[]).concat(i))),!u||!u.length)return a;var c,l,f,m,p,d,h;for(c=0,d=u.length;d>c;c++)if(p=u[c],f=p.name,f&&!p.disabled)if(t&&o.clk&&"image"==p.type)o.clk==p&&(a.push({name:f,value:e(p).val(),type:p.type}),a.push({name:f+".x",value:o.clk_x},{name:f+".y",value:o.clk_y}));else if(m=e.fieldValue(p,!0),m&&m.constructor==Array)for(r&&r.push(p),l=0,h=m.length;h>l;l++)a.push({name:f,value:m[l]});else if(n.fileapi&&"file"==p.type){r&&r.push(p);var v=p.files;if(v.length)for(l=0;l<v.length;l++)a.push({name:f,value:v[l],type:p.type});else a.push({name:f,value:"",type:p.type})}else null!==m&&"undefined"!=typeof m&&(r&&r.push(p),a.push({name:f,value:m,type:p.type,required:p.required}));if(!t&&o.clk){var g=e(o.clk),x=g[0];f=x.name,f&&!x.disabled&&"image"==x.type&&(a.push({name:f,value:g.val()}),a.push({name:f+".x",value:o.clk_x},{name:f+".y",value:o.clk_y}))}return a},e.fn.formSerialize=function(t){return e.param(this.formToArray(t))},e.fn.fieldSerialize=function(t){var r=[];return this.each(function(){var a=this.name;if(a){var n=e.fieldValue(this,t);if(n&&n.constructor==Array)for(var i=0,o=n.length;o>i;i++)r.push({name:a,value:n[i]});else null!==n&&"undefined"!=typeof n&&r.push({name:this.name,value:n})}}),e.param(r)},e.fn.fieldValue=function(t){for(var r=[],a=0,n=this.length;n>a;a++){var i=this[a],o=e.fieldValue(i,t);null===o||"undefined"==typeof o||o.constructor==Array&&!o.length||(o.constructor==Array?e.merge(r,o):r.push(o))}return r},e.fieldValue=function(t,r){var a=t.name,n=t.type,i=t.tagName.toLowerCase();if(void 0===r&&(r=!0),r&&(!a||t.disabled||"reset"==n||"button"==n||("checkbox"==n||"radio"==n)&&!t.checked||("submit"==n||"image"==n)&&t.form&&t.form.clk!=t||"select"==i&&-1==t.selectedIndex))return null;if("select"==i){var o=t.selectedIndex;if(0>o)return null;for(var s=[],u=t.options,c="select-one"==n,l=c?o+1:u.length,f=c?o:0;l>f;f++){var m=u[f];if(m.selected){var p=m.value;if(p||(p=m.attributes&&m.attributes.value&&!m.attributes.value.specified?m.text:m.value),c)return p;s.push(p)}}return s}return e(t).val()},e.fn.clearForm=function(t){return this.each(function(){e("input,select,textarea",this).clearFields(t)})},e.fn.clearFields=e.fn.clearInputs=function(t){var r=/^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i;return this.each(function(){var a=this.type,n=this.tagName.toLowerCase();r.test(a)||"textarea"==n?this.value="":"checkbox"==a||"radio"==a?this.checked=!1:"select"==n?this.selectedIndex=-1:"file"==a?/MSIE/.test(navigator.userAgent)?e(this).replaceWith(e(this).clone(!0)):e(this).val(""):t&&(t===!0&&/hidden/.test(a)||"string"==typeof t&&e(this).is(t))&&(this.value="")})},e.fn.resetForm=function(){return this.each(function(){("function"==typeof this.reset||"object"==typeof this.reset&&!this.reset.nodeType)&&this.reset()})},e.fn.enable=function(e){return void 0===e&&(e=!0),this.each(function(){this.disabled=!e})},e.fn.selected=function(t){return void 0===t&&(t=!0),this.each(function(){var r=this.type;if("checkbox"==r||"radio"==r)this.checked=t;else if("option"==this.tagName.toLowerCase()){var a=e(this).parent("select");t&&a[0]&&"select-one"==a[0].type&&a.find("option").selected(!1),this.selected=t}})},e.fn.ajaxSubmit.debug=!1});;
+/*!
+	Colorbox 1.6.4
+	license: MIT
+	http://www.jacklmoore.com/colorbox
+*/
+(function(t,e,i){function n(i,n,o){var r=e.createElement(i);return n&&(r.id=Z+n),o&&(r.style.cssText=o),t(r)}function o(){return i.innerHeight?i.innerHeight:t(i).height()}function r(e,i){i!==Object(i)&&(i={}),this.cache={},this.el=e,this.value=function(e){var n;return void 0===this.cache[e]&&(n=t(this.el).attr("data-cbox-"+e),void 0!==n?this.cache[e]=n:void 0!==i[e]?this.cache[e]=i[e]:void 0!==X[e]&&(this.cache[e]=X[e])),this.cache[e]},this.get=function(e){var i=this.value(e);return t.isFunction(i)?i.call(this.el,this):i}}function h(t){var e=W.length,i=(A+t)%e;return 0>i?e+i:i}function a(t,e){return Math.round((/%/.test(t)?("x"===e?E.width():o())/100:1)*parseInt(t,10))}function s(t,e){return t.get("photo")||t.get("photoRegex").test(e)}function l(t,e){return t.get("retinaUrl")&&i.devicePixelRatio>1?e.replace(t.get("photoRegex"),t.get("retinaSuffix")):e}function d(t){"contains"in x[0]&&!x[0].contains(t.target)&&t.target!==v[0]&&(t.stopPropagation(),x.focus())}function c(t){c.str!==t&&(x.add(v).removeClass(c.str).addClass(t),c.str=t)}function g(e){A=0,e&&e!==!1&&"nofollow"!==e?(W=t("."+te).filter(function(){var i=t.data(this,Y),n=new r(this,i);return n.get("rel")===e}),A=W.index(_.el),-1===A&&(W=W.add(_.el),A=W.length-1)):W=t(_.el)}function u(i){t(e).trigger(i),ae.triggerHandler(i)}function f(i){var o;if(!G){if(o=t(i).data(Y),_=new r(i,o),g(_.get("rel")),!U){U=$=!0,c(_.get("className")),x.css({visibility:"hidden",display:"block",opacity:""}),I=n(se,"LoadedContent","width:0; height:0; overflow:hidden; visibility:hidden"),b.css({width:"",height:""}).append(I),j=T.height()+k.height()+b.outerHeight(!0)-b.height(),D=C.width()+H.width()+b.outerWidth(!0)-b.width(),N=I.outerHeight(!0),z=I.outerWidth(!0);var h=a(_.get("initialWidth"),"x"),s=a(_.get("initialHeight"),"y"),l=_.get("maxWidth"),f=_.get("maxHeight");_.w=Math.max((l!==!1?Math.min(h,a(l,"x")):h)-z-D,0),_.h=Math.max((f!==!1?Math.min(s,a(f,"y")):s)-N-j,0),I.css({width:"",height:_.h}),J.position(),u(ee),_.get("onOpen"),O.add(F).hide(),x.focus(),_.get("trapFocus")&&e.addEventListener&&(e.addEventListener("focus",d,!0),ae.one(re,function(){e.removeEventListener("focus",d,!0)})),_.get("returnFocus")&&ae.one(re,function(){t(_.el).focus()})}var p=parseFloat(_.get("opacity"));v.css({opacity:p===p?p:"",cursor:_.get("overlayClose")?"pointer":"",visibility:"visible"}).show(),_.get("closeButton")?B.html(_.get("close")).appendTo(b):B.appendTo("<div/>"),w()}}function p(){x||(V=!1,E=t(i),x=n(se).attr({id:Y,"class":t.support.opacity===!1?Z+"IE":"",role:"dialog",tabindex:"-1"}).hide(),v=n(se,"Overlay").hide(),L=t([n(se,"LoadingOverlay")[0],n(se,"LoadingGraphic")[0]]),y=n(se,"Wrapper"),b=n(se,"Content").append(F=n(se,"Title"),R=n(se,"Current"),P=t('<button type="button"/>').attr({id:Z+"Previous"}),K=t('<button type="button"/>').attr({id:Z+"Next"}),S=t('<button type="button"/>').attr({id:Z+"Slideshow"}),L),B=t('<button type="button"/>').attr({id:Z+"Close"}),y.append(n(se).append(n(se,"TopLeft"),T=n(se,"TopCenter"),n(se,"TopRight")),n(se,!1,"clear:left").append(C=n(se,"MiddleLeft"),b,H=n(se,"MiddleRight")),n(se,!1,"clear:left").append(n(se,"BottomLeft"),k=n(se,"BottomCenter"),n(se,"BottomRight"))).find("div div").css({"float":"left"}),M=n(se,!1,"position:absolute; width:9999px; visibility:hidden; display:none; max-width:none;"),O=K.add(P).add(R).add(S)),e.body&&!x.parent().length&&t(e.body).append(v,x.append(y,M))}function m(){function i(t){t.which>1||t.shiftKey||t.altKey||t.metaKey||t.ctrlKey||(t.preventDefault(),f(this))}return x?(V||(V=!0,K.click(function(){J.next()}),P.click(function(){J.prev()}),B.click(function(){J.close()}),v.click(function(){_.get("overlayClose")&&J.close()}),t(e).bind("keydown."+Z,function(t){var e=t.keyCode;U&&_.get("escKey")&&27===e&&(t.preventDefault(),J.close()),U&&_.get("arrowKey")&&W[1]&&!t.altKey&&(37===e?(t.preventDefault(),P.click()):39===e&&(t.preventDefault(),K.click()))}),t.isFunction(t.fn.on)?t(e).on("click."+Z,"."+te,i):t("."+te).live("click."+Z,i)),!0):!1}function w(){var e,o,r,h=J.prep,d=++le;if($=!0,q=!1,u(he),u(ie),_.get("onLoad"),_.h=_.get("height")?a(_.get("height"),"y")-N-j:_.get("innerHeight")&&a(_.get("innerHeight"),"y"),_.w=_.get("width")?a(_.get("width"),"x")-z-D:_.get("innerWidth")&&a(_.get("innerWidth"),"x"),_.mw=_.w,_.mh=_.h,_.get("maxWidth")&&(_.mw=a(_.get("maxWidth"),"x")-z-D,_.mw=_.w&&_.w<_.mw?_.w:_.mw),_.get("maxHeight")&&(_.mh=a(_.get("maxHeight"),"y")-N-j,_.mh=_.h&&_.h<_.mh?_.h:_.mh),e=_.get("href"),Q=setTimeout(function(){L.show()},100),_.get("inline")){var c=t(e).eq(0);r=t("<div>").hide().insertBefore(c),ae.one(he,function(){r.replaceWith(c)}),h(c)}else _.get("iframe")?h(" "):_.get("html")?h(_.get("html")):s(_,e)?(e=l(_,e),q=_.get("createImg"),t(q).addClass(Z+"Photo").bind("error."+Z,function(){h(n(se,"Error").html(_.get("imgError")))}).one("load",function(){d===le&&setTimeout(function(){var e;_.get("retinaImage")&&i.devicePixelRatio>1&&(q.height=q.height/i.devicePixelRatio,q.width=q.width/i.devicePixelRatio),_.get("scalePhotos")&&(o=function(){q.height-=q.height*e,q.width-=q.width*e},_.mw&&q.width>_.mw&&(e=(q.width-_.mw)/q.width,o()),_.mh&&q.height>_.mh&&(e=(q.height-_.mh)/q.height,o())),_.h&&(q.style.marginTop=Math.max(_.mh-q.height,0)/2+"px"),W[1]&&(_.get("loop")||W[A+1])&&(q.style.cursor="pointer",t(q).bind("click."+Z,function(){J.next()})),q.style.width=q.width+"px",q.style.height=q.height+"px",h(q)},1)}),q.src=e):e&&M.load(e,_.get("data"),function(e,i){d===le&&h("error"===i?n(se,"Error").html(_.get("xhrError")):t(this).contents())})}var v,x,y,b,T,C,H,k,W,E,I,M,L,F,R,S,K,P,B,O,_,j,D,N,z,A,q,U,$,G,Q,J,V,X={html:!1,photo:!1,iframe:!1,inline:!1,transition:"elastic",speed:300,fadeOut:300,width:!1,initialWidth:"600",innerWidth:!1,maxWidth:!1,height:!1,initialHeight:"450",innerHeight:!1,maxHeight:!1,scalePhotos:!0,scrolling:!0,opacity:.9,preloading:!0,className:!1,overlayClose:!0,escKey:!0,arrowKey:!0,top:!1,bottom:!1,left:!1,right:!1,fixed:!1,data:void 0,closeButton:!0,fastIframe:!0,open:!1,reposition:!0,loop:!0,slideshow:!1,slideshowAuto:!0,slideshowSpeed:2500,slideshowStart:"start slideshow",slideshowStop:"stop slideshow",photoRegex:/\.(gif|png|jp(e|g|eg)|bmp|ico|webp|jxr|svg)((#|\?).*)?$/i,retinaImage:!1,retinaUrl:!1,retinaSuffix:"@2x.$1",current:"image {current} of {total}",previous:"previous",next:"next",close:"close",xhrError:"This content failed to load.",imgError:"This image failed to load.",returnFocus:!0,trapFocus:!0,onOpen:!1,onLoad:!1,onComplete:!1,onCleanup:!1,onClosed:!1,rel:function(){return this.rel},href:function(){return t(this).attr("href")},title:function(){return this.title},createImg:function(){var e=new Image,i=t(this).data("cbox-img-attrs");return"object"==typeof i&&t.each(i,function(t,i){e[t]=i}),e},createIframe:function(){var i=e.createElement("iframe"),n=t(this).data("cbox-iframe-attrs");return"object"==typeof n&&t.each(n,function(t,e){i[t]=e}),"frameBorder"in i&&(i.frameBorder=0),"allowTransparency"in i&&(i.allowTransparency="true"),i.name=(new Date).getTime(),i.allowFullscreen=!0,i}},Y="colorbox",Z="cbox",te=Z+"Element",ee=Z+"_open",ie=Z+"_load",ne=Z+"_complete",oe=Z+"_cleanup",re=Z+"_closed",he=Z+"_purge",ae=t("<a/>"),se="div",le=0,de={},ce=function(){function t(){clearTimeout(h)}function e(){(_.get("loop")||W[A+1])&&(t(),h=setTimeout(J.next,_.get("slideshowSpeed")))}function i(){S.html(_.get("slideshowStop")).unbind(s).one(s,n),ae.bind(ne,e).bind(ie,t),x.removeClass(a+"off").addClass(a+"on")}function n(){t(),ae.unbind(ne,e).unbind(ie,t),S.html(_.get("slideshowStart")).unbind(s).one(s,function(){J.next(),i()}),x.removeClass(a+"on").addClass(a+"off")}function o(){r=!1,S.hide(),t(),ae.unbind(ne,e).unbind(ie,t),x.removeClass(a+"off "+a+"on")}var r,h,a=Z+"Slideshow_",s="click."+Z;return function(){r?_.get("slideshow")||(ae.unbind(oe,o),o()):_.get("slideshow")&&W[1]&&(r=!0,ae.one(oe,o),_.get("slideshowAuto")?i():n(),S.show())}}();t[Y]||(t(p),J=t.fn[Y]=t[Y]=function(e,i){var n,o=this;return e=e||{},t.isFunction(o)&&(o=t("<a/>"),e.open=!0),o[0]?(p(),m()&&(i&&(e.onComplete=i),o.each(function(){var i=t.data(this,Y)||{};t.data(this,Y,t.extend(i,e))}).addClass(te),n=new r(o[0],e),n.get("open")&&f(o[0])),o):o},J.position=function(e,i){function n(){T[0].style.width=k[0].style.width=b[0].style.width=parseInt(x[0].style.width,10)-D+"px",b[0].style.height=C[0].style.height=H[0].style.height=parseInt(x[0].style.height,10)-j+"px"}var r,h,s,l=0,d=0,c=x.offset();if(E.unbind("resize."+Z),x.css({top:-9e4,left:-9e4}),h=E.scrollTop(),s=E.scrollLeft(),_.get("fixed")?(c.top-=h,c.left-=s,x.css({position:"fixed"})):(l=h,d=s,x.css({position:"absolute"})),d+=_.get("right")!==!1?Math.max(E.width()-_.w-z-D-a(_.get("right"),"x"),0):_.get("left")!==!1?a(_.get("left"),"x"):Math.round(Math.max(E.width()-_.w-z-D,0)/2),l+=_.get("bottom")!==!1?Math.max(o()-_.h-N-j-a(_.get("bottom"),"y"),0):_.get("top")!==!1?a(_.get("top"),"y"):Math.round(Math.max(o()-_.h-N-j,0)/2),x.css({top:c.top,left:c.left,visibility:"visible"}),y[0].style.width=y[0].style.height="9999px",r={width:_.w+z+D,height:_.h+N+j,top:l,left:d},e){var g=0;t.each(r,function(t){return r[t]!==de[t]?(g=e,void 0):void 0}),e=g}de=r,e||x.css(r),x.dequeue().animate(r,{duration:e||0,complete:function(){n(),$=!1,y[0].style.width=_.w+z+D+"px",y[0].style.height=_.h+N+j+"px",_.get("reposition")&&setTimeout(function(){E.bind("resize."+Z,J.position)},1),t.isFunction(i)&&i()},step:n})},J.resize=function(t){var e;U&&(t=t||{},t.width&&(_.w=a(t.width,"x")-z-D),t.innerWidth&&(_.w=a(t.innerWidth,"x")),I.css({width:_.w}),t.height&&(_.h=a(t.height,"y")-N-j),t.innerHeight&&(_.h=a(t.innerHeight,"y")),t.innerHeight||t.height||(e=I.scrollTop(),I.css({height:"auto"}),_.h=I.height()),I.css({height:_.h}),e&&I.scrollTop(e),J.position("none"===_.get("transition")?0:_.get("speed")))},J.prep=function(i){function o(){return _.w=_.w||I.width(),_.w=_.mw&&_.mw<_.w?_.mw:_.w,_.w}function a(){return _.h=_.h||I.height(),_.h=_.mh&&_.mh<_.h?_.mh:_.h,_.h}if(U){var d,g="none"===_.get("transition")?0:_.get("speed");I.remove(),I=n(se,"LoadedContent").append(i),I.hide().appendTo(M.show()).css({width:o(),overflow:_.get("scrolling")?"auto":"hidden"}).css({height:a()}).prependTo(b),M.hide(),t(q).css({"float":"none"}),c(_.get("className")),d=function(){function i(){t.support.opacity===!1&&x[0].style.removeAttribute("filter")}var n,o,a=W.length;U&&(o=function(){clearTimeout(Q),L.hide(),u(ne),_.get("onComplete")},F.html(_.get("title")).show(),I.show(),a>1?("string"==typeof _.get("current")&&R.html(_.get("current").replace("{current}",A+1).replace("{total}",a)).show(),K[_.get("loop")||a-1>A?"show":"hide"]().html(_.get("next")),P[_.get("loop")||A?"show":"hide"]().html(_.get("previous")),ce(),_.get("preloading")&&t.each([h(-1),h(1)],function(){var i,n=W[this],o=new r(n,t.data(n,Y)),h=o.get("href");h&&s(o,h)&&(h=l(o,h),i=e.createElement("img"),i.src=h)})):O.hide(),_.get("iframe")?(n=_.get("createIframe"),_.get("scrolling")||(n.scrolling="no"),t(n).attr({src:_.get("href"),"class":Z+"Iframe"}).one("load",o).appendTo(I),ae.one(he,function(){n.src="//about:blank"}),_.get("fastIframe")&&t(n).trigger("load")):o(),"fade"===_.get("transition")?x.fadeTo(g,1,i):i())},"fade"===_.get("transition")?x.fadeTo(g,0,function(){J.position(0,d)}):J.position(g,d)}},J.next=function(){!$&&W[1]&&(_.get("loop")||W[A+1])&&(A=h(1),f(W[A]))},J.prev=function(){!$&&W[1]&&(_.get("loop")||A)&&(A=h(-1),f(W[A]))},J.close=function(){U&&!G&&(G=!0,U=!1,u(oe),_.get("onCleanup"),E.unbind("."+Z),v.fadeTo(_.get("fadeOut")||0,0),x.stop().fadeTo(_.get("fadeOut")||0,0,function(){x.hide(),v.hide(),u(he),I.remove(),setTimeout(function(){G=!1,u(re),_.get("onClosed")},1)}))},J.remove=function(){x&&(x.stop(),t[Y].close(),x.stop(!1,!0).remove(),v.remove(),G=!1,x=null,t("."+te).removeData(Y).removeClass(te),t(e).unbind("click."+Z).unbind("keydown."+Z))},J.element=function(){return t(_.el)},J.settings=X)})(jQuery,document,window);;
+(function ($) {
+
+Drupal.behaviors.initColorbox = {
+  attach: function (context, settings) {
+    if (!$.isFunction($.colorbox) || typeof settings.colorbox === 'undefined') {
+      return;
+    }
+
+    if (settings.colorbox.mobiledetect && window.matchMedia) {
+      // Disable Colorbox for small screens.
+      var mq = window.matchMedia("(max-device-width: " + settings.colorbox.mobiledevicewidth + ")");
+      if (mq.matches) {
+        return;
+      }
+    }
+
+    // Use "data-colorbox-gallery" if set otherwise use "rel".
+    settings.colorbox.rel = function () {
+      if ($(this).data('colorbox-gallery')) {
+        return $(this).data('colorbox-gallery');
+      }
+      else {
+        return $(this).attr('rel');
+      }
+    };
+
+    $('.colorbox', context)
+      .once('init-colorbox')
+      .colorbox(settings.colorbox);
+
+    $(context).bind('cbox_complete', function () {
+      Drupal.attachBehaviors('#cboxLoadedContent');
+    });
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+Drupal.behaviors.initColorboxDefaultStyle = {
+  attach: function (context, settings) {
+    $(context).bind('cbox_complete', function () {
+      // Only run if there is a title.
+      if ($('#cboxTitle:empty', context).length == false) {
+        $('#cboxLoadedContent img', context).bind('mouseover', function () {
+          $('#cboxTitle', context).slideDown();
+        });
+        $('#cboxOverlay', context).bind('mouseover', function () {
+          $('#cboxTitle', context).slideUp();
+        });
+      }
+      else {
+        $('#cboxTitle', context).hide();
+      }
+    });
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+  // Store the original beforeSerialize, as we want to continue using
+  // it after we've overridden it.
+  Drupal.ajax.prototype.originalBeforeSerialize = Drupal.ajax.prototype.beforeSerialize;
+
+  /**
+   * Override core's beforeSerialize.
+   *
+   * We switch to using GET if this is for an ajax View.
+   * We also avoid adding ajax_html_id and ajax_page_state.
+   * (This happens in core's beforeSerialize).
+   */
+  Drupal.ajax.prototype.beforeSerialize = function (element, options) {
+
+    // If this is for a view, switch to GET.
+    if (options.url &&
+      options.url.indexOf('/views/ajax') !== -1 &&
+      Drupal.settings.viewsAjaxGet &&
+      $.inArray(options.data.view_name, Drupal.settings.viewsAjaxGet) !== -1) {
+
+      // @See Drupal.ajax.prototype.beforeSerialize
+      if (this.form) {
+        var settings = this.settings || Drupal.settings;
+        Drupal.detachBehaviors(this.form, settings, 'serialize');
+      }
+
+      options.type = 'GET';
+      return;
+    }
+
+    return this.originalBeforeSerialize(element, options);
+  };
+
+})(jQuery);
+;
+/**
+ * @file views_load_more.js
+ *
+ * Handles the AJAX pager for the view_load_more plugin.
+ */
+(function ($) {
+
+  /**
+   * Provide a series of commands that the server can request the client perform.
+   */
+  Drupal.ajax.prototype.commands.viewsLoadMoreAppend = function (ajax, response, status) {
+    // Get information from the response. If it is not there, default to
+    // our presets.
+    var wrapper = response.selector ? $(response.selector) : $(ajax.wrapper);
+    var method = response.method || ajax.method;
+    var targetList = response.targetList || '';
+    var effect = ajax.getEffect(response);
+    var pager_selector = response.options.pager_selector ? response.options.pager_selector : '> .pager-load-more';
+
+    // We don't know what response.data contains: it might be a string of text
+    // without HTML, so don't rely on jQuery correctly iterpreting
+    // $(response.data) as new HTML rather than a CSS selector. Also, if
+    // response.data contains top-level text nodes, they get lost with either
+    // $(response.data) or $('<div></div>').replaceWith(response.data).
+    var new_content_wrapped = $('<div></div>').html(response.data);
+    var new_content = new_content_wrapped.contents();
+
+    // For legacy reasons, the effects processing code assumes that new_content
+    // consists of a single top-level element. Also, it has not been
+    // sufficiently tested whether attachBehaviors() can be successfully called
+    // with a context object that includes top-level text nodes. However, to
+    // give developers full control of the HTML appearing in the page, and to
+    // enable Ajax content to be inserted in places where DIV elements are not
+    // allowed (e.g., within TABLE, TR, and SPAN parents), we check if the new
+    // content satisfies the requirement of a single top-level element, and
+    // only use the container DIV created above when it doesn't. For more
+    // information, please see http://drupal.org/node/736066.
+    if (new_content.length != 1 || new_content.get(0).nodeType != 1) {
+      new_content = new_content_wrapped;
+    }
+    // If removing content from the wrapper, detach behaviors first.
+    var settings = response.settings || ajax.settings || Drupal.settings;
+    Drupal.detachBehaviors(wrapper, settings);
+    if ($.waypoints != undefined) {
+      $.waypoints('refresh');
+    }
+
+    // Set up our default query options. This is for advance users that might
+    // change there views layout classes. This allows them to write there own
+    // jquery selector to replace the content with.
+    // Provide sensible defaults for unordered list, ordered list and table
+    // view styles.
+    var content_query = targetList && !response.options.content ? '> .view-content ' + targetList : response.options.content || '> .view-content';
+
+    // If we're using any effects. Hide the new content before adding it to the DOM.
+    if (effect.showEffect != 'show') {
+      new_content.find(content_query).children().hide();
+    }
+
+    // Update the pager
+    // Find both for the wrapper as the newly loaded content the direct child
+    // .item-list in case of nested pagers
+    wrapper.find(pager_selector).replaceWith(new_content.find(pager_selector));
+
+    // Add the new content to the page.
+    wrapper.find(content_query)[method](new_content.find(content_query).children());
+
+    // Re-class the loaded content.
+    // @todo this is faulty in many ways.  first of which is that user may have configured view to not have these classes at all.
+    wrapper.find(content_query).children()
+      .removeClass('views-row-first views-row-last views-row-odd views-row-even')
+      .filter(':first')
+        .addClass('views-row-first')
+        .end()
+      .filter(':last')
+        .addClass('views-row-last')
+        .end()
+      .filter(':even')
+        .addClass('views-row-odd')
+        .end()
+      .filter(':odd')
+        .addClass('views-row-even')
+        .end();
+
+    if (effect.showEffect != 'show') {
+      wrapper.find(content_query).children(':not(:visible)')[effect.showEffect](effect.showSpeed);
+    }
+
+    // Additional processing over new content
+    wrapper.trigger('views_load_more.new_content', new_content.clone());
+
+    // Attach all JavaScript behaviors to the new content
+    // Remove the Jquery once Class, TODO: There needs to be a better
+    // way of doing this, look at .removeOnce() :-/
+    var classes = wrapper.attr('class');
+    var onceClass = classes.match(/jquery-once-[0-9]*-[a-z]*/);
+    wrapper.removeClass(onceClass[0]);
+    settings = response.settings || ajax.settings || Drupal.settings;
+    Drupal.attachBehaviors(wrapper, settings);
+  };
+
+  /**
+   * Attaches the AJAX behavior to Views Load More waypoint support.
+   */
+  Drupal.behaviors.ViewsLoadMore = {
+    attach: function (context, settings) {
+      var default_opts = {
+          offset: '100%'
+        };
+
+      if (settings && settings.viewsLoadMore && settings.views && settings.views.ajaxViews) {
+        $.each(settings.viewsLoadMore, function(i, setting) {
+          var view = '.view-id-' + setting.view_name + '.view-display-id-' + setting.view_display_id + ' .pager-next a',
+            opts = {};
+
+          $.extend(opts, default_opts, settings.viewsLoadMore[i].opts);
+
+          $(view).waypoint('destroy');
+          $(view).waypoint(function(event, direction) {
+            $(view).click();
+          }, opts);
+        });
+      }
+    },
+    detach: function (context, settings, trigger) {
+      if (settings && settings.viewsLoadMore && settings.views && settings.views.ajaxViews) {
+        $.each(settings.viewsLoadMore, function(i, setting) {
+          var view = '.view-id-' + setting.view_name + '.view-display-id-' + setting.view_display_id;
+          if ($(context).is(view)) {
+            $('.pager-next a', view).waypoint('destroy');
+          }
+          else {
+            $(view, context).waypoint('destroy');
+          }
+        });
+      }
+    }
+  };
+})(jQuery);
+;
+(function ($) {
+
+/**
+ * A progressbar object. Initialized with the given id. Must be inserted into
+ * the DOM afterwards through progressBar.element.
+ *
+ * method is the function which will perform the HTTP request to get the
+ * progress bar state. Either "GET" or "POST".
+ *
+ * e.g. pb = new progressBar('myProgressBar');
+ *      some_element.appendChild(pb.element);
+ */
+Drupal.progressBar = function (id, updateCallback, method, errorCallback) {
+  var pb = this;
+  this.id = id;
+  this.method = method || 'GET';
+  this.updateCallback = updateCallback;
+  this.errorCallback = errorCallback;
+
+  // The WAI-ARIA setting aria-live="polite" will announce changes after users
+  // have completed their current activity and not interrupt the screen reader.
+  this.element = $('<div class="progress" aria-live="polite"></div>').attr('id', id);
+  this.element.html('<div class="bar"><div class="filled"></div></div>' +
+                    '<div class="percentage"></div>' +
+                    '<div class="message">&nbsp;</div>');
+};
+
+/**
+ * Set the percentage and status message for the progressbar.
+ */
+Drupal.progressBar.prototype.setProgress = function (percentage, message) {
+  if (percentage >= 0 && percentage <= 100) {
+    $('div.filled', this.element).css('width', percentage + '%');
+    $('div.percentage', this.element).html(percentage + '%');
+  }
+  $('div.message', this.element).html(message);
+  if (this.updateCallback) {
+    this.updateCallback(percentage, message, this);
+  }
+};
+
+/**
+ * Start monitoring progress via Ajax.
+ */
+Drupal.progressBar.prototype.startMonitoring = function (uri, delay) {
+  this.delay = delay;
+  this.uri = uri;
+  this.sendPing();
+};
+
+/**
+ * Stop monitoring progress via Ajax.
+ */
+Drupal.progressBar.prototype.stopMonitoring = function () {
+  clearTimeout(this.timer);
+  // This allows monitoring to be stopped from within the callback.
+  this.uri = null;
+};
+
+/**
+ * Request progress data from server.
+ */
+Drupal.progressBar.prototype.sendPing = function () {
+  if (this.timer) {
+    clearTimeout(this.timer);
+  }
+  if (this.uri) {
+    var pb = this;
+    // When doing a post request, you need non-null data. Otherwise a
+    // HTTP 411 or HTTP 406 (with Apache mod_security) error may result.
+    $.ajax({
+      type: this.method,
+      url: this.uri,
+      data: '',
+      dataType: 'json',
+      success: function (progress) {
+        // Display errors.
+        if (progress.status == 0) {
+          pb.displayError(progress.data);
+          return;
+        }
+        // Update display.
+        pb.setProgress(progress.percentage, progress.message);
+        // Schedule next timer.
+        pb.timer = setTimeout(function () { pb.sendPing(); }, pb.delay);
+      },
+      error: function (xmlhttp) {
+        pb.displayError(Drupal.ajaxError(xmlhttp, pb.uri));
+      }
+    });
+  }
+};
+
+/**
+ * Display errors on the page.
+ */
+Drupal.progressBar.prototype.displayError = function (string) {
+  var error = $('<div class="messages error"></div>').html(string);
+  $(this.element).before(error).hide();
+
+  if (this.errorCallback) {
+    this.errorCallback(this);
+  }
+};
+
+})(jQuery);
+;
+/**
+ * @file
+ * JavaScript behaviors for the front-end display of webforms.
+ */
+
+(function ($) {
+
+  "use strict";
+
+  Drupal.behaviors.webform = Drupal.behaviors.webform || {};
+
+  Drupal.behaviors.webform.attach = function (context) {
+    // Calendar datepicker behavior.
+    Drupal.webform.datepicker(context);
+
+    // Conditional logic.
+    if (Drupal.settings.webform && Drupal.settings.webform.conditionals) {
+      Drupal.webform.conditional(context);
+    }
+  };
+
+  Drupal.webform = Drupal.webform || {};
+
+  Drupal.webform.datepicker = function (context) {
+    $('div.webform-datepicker').each(function () {
+      var $webformDatepicker = $(this);
+      var $calendar = $webformDatepicker.find('input.webform-calendar');
+
+      // Ensure the page we're on actually contains a datepicker.
+      if ($calendar.length == 0) {
+        return;
+      }
+
+      var startDate = $calendar[0].className.replace(/.*webform-calendar-start-(\d{4}-\d{2}-\d{2}).*/, '$1').split('-');
+      var endDate = $calendar[0].className.replace(/.*webform-calendar-end-(\d{4}-\d{2}-\d{2}).*/, '$1').split('-');
+      var firstDay = $calendar[0].className.replace(/.*webform-calendar-day-(\d).*/, '$1');
+      // Convert date strings into actual Date objects.
+      startDate = new Date(startDate[0], startDate[1] - 1, startDate[2]);
+      endDate = new Date(endDate[0], endDate[1] - 1, endDate[2]);
+
+      // Ensure that start comes before end for datepicker.
+      if (startDate > endDate) {
+        var laterDate = startDate;
+        startDate = endDate;
+        endDate = laterDate;
+      }
+
+      var startYear = startDate.getFullYear();
+      var endYear = endDate.getFullYear();
+
+      // Set up the jQuery datepicker element.
+      $calendar.datepicker({
+        dateFormat: 'yy-mm-dd',
+        yearRange: startYear + ':' + endYear,
+        firstDay: parseInt(firstDay),
+        minDate: startDate,
+        maxDate: endDate,
+        onSelect: function (dateText, inst) {
+          var date = dateText.split('-');
+          $webformDatepicker.find('select.year, input.year').val(+date[0]).trigger('change');
+          $webformDatepicker.find('select.month').val(+date[1]).trigger('change');
+          $webformDatepicker.find('select.day').val(+date[2]).trigger('change');
+        },
+        beforeShow: function (input, inst) {
+          // Get the select list values.
+          var year = $webformDatepicker.find('select.year, input.year').val();
+          var month = $webformDatepicker.find('select.month').val();
+          var day = $webformDatepicker.find('select.day').val();
+
+          // If empty, default to the current year/month/day in the popup.
+          var today = new Date();
+          year = year ? year : today.getFullYear();
+          month = month ? month : today.getMonth() + 1;
+          day = day ? day : today.getDate();
+
+          // Make sure that the default year fits in the available options.
+          year = (year < startYear || year > endYear) ? startYear : year;
+
+          // jQuery UI Datepicker will read the input field and base its date off
+          // of that, even though in our case the input field is a button.
+          $(input).val(year + '-' + month + '-' + day);
+        }
+      });
+
+      // Prevent the calendar button from submitting the form.
+      $calendar.click(function (event) {
+        $(this).focus();
+        event.preventDefault();
+      });
+    });
+  };
+
+  Drupal.webform.conditional = function (context) {
+    // Add the bindings to each webform on the page.
+    $.each(Drupal.settings.webform.conditionals, function (formKey, settings) {
+      var $form = $('.' + formKey + ':not(.webform-conditional-processed)');
+      $form.each(function (index, currentForm) {
+        var $currentForm = $(currentForm);
+        $currentForm.addClass('webform-conditional-processed');
+        $currentForm.bind('change', {'settings': settings}, Drupal.webform.conditionalCheck);
+
+        // Trigger all the elements that cause conditionals on this form.
+        Drupal.webform.doConditions($currentForm, settings);
+      });
+    });
+  };
+
+  /**
+   * Event handler to respond to field changes in a form.
+   *
+   * This event is bound to the entire form, not individual fields.
+   */
+  Drupal.webform.conditionalCheck = function (e) {
+    var $triggerElement = $(e.target).closest('.webform-component');
+    var $form = $triggerElement.closest('form');
+    var triggerElementKey = $triggerElement.attr('class').match(/webform-component--[^ ]+/)[0];
+    var settings = e.data.settings;
+    if (settings.sourceMap[triggerElementKey]) {
+      Drupal.webform.doConditions($form, settings);
+    }
+  };
+
+  /**
+   * Processes all conditional.
+   */
+  Drupal.webform.doConditions = function ($form, settings) {
+
+    var stackPointer;
+    var resultStack;
+
+    /**
+     * Initializes an execution stack for a conditional group's rules and
+     * sub-conditional rules.
+     */
+    function executionStackInitialize(andor) {
+      stackPointer = -1;
+      resultStack = [];
+      executionStackPush(andor);
+    }
+
+    /**
+     * Starts a new subconditional for the given and/or operator.
+     */
+    function executionStackPush(andor) {
+      resultStack[++stackPointer] = {
+        results: [],
+        andor: andor,
+      };
+    }
+
+    /**
+     * Adds a rule's result to the current sub-conditional.
+     */
+    function executionStackAccumulate(result) {
+      resultStack[stackPointer]['results'].push(result);
+    }
+
+    /**
+     * Finishes a sub-conditional and adds the result to the parent stack frame.
+     */
+    function executionStackPop() {
+      // Calculate the and/or result.
+      var stackFrame = resultStack[stackPointer];
+      // Pop stack and protect against stack underflow.
+      stackPointer = Math.max(0, stackPointer - 1);
+      var $conditionalResults = stackFrame['results'];
+      var filteredResults = $.map($conditionalResults, function (val) {
+        return val ? val : null;
+      });
+      return stackFrame['andor'] === 'or'
+                ? filteredResults.length > 0
+                : filteredResults.length === $conditionalResults.length;
+    }
+
+    // Track what has be set/shown for each target component.
+    var targetLocked = [];
+
+    $.each(settings.ruleGroups, function (rgid_key, rule_group) {
+      var ruleGroup = settings.ruleGroups[rgid_key];
+
+      // Perform the comparison callback and build the results for this group.
+      executionStackInitialize(ruleGroup['andor']);
+      $.each(ruleGroup['rules'], function (m, rule) {
+        switch (rule['source_type']) {
+          case 'component':
+            var elementKey = rule['source'];
+            var element = $form.find('.' + elementKey)[0];
+            var existingValue = settings.values[elementKey] ? settings.values[elementKey] : null;
+            executionStackAccumulate(window['Drupal']['webform'][rule.callback](element, existingValue, rule['value']));
+            break;
+
+          case 'conditional_start':
+            executionStackPush(rule['andor']);
+            break;
+
+          case 'conditional_end':
+            executionStackAccumulate(executionStackPop());
+            break;
+        }
+      });
+      var conditionalResult = executionStackPop();
+
+      $.each(ruleGroup['actions'], function (aid, action) {
+        var $target = $form.find('.' + action['target']);
+        var actionResult = action['invert'] ? !conditionalResult : conditionalResult;
+        switch (action['action']) {
+          case 'show':
+            if (actionResult != Drupal.webform.isVisible($target)) {
+              var $targetElements = actionResult
+                                      ? $target.find('.webform-conditional-disabled').removeClass('webform-conditional-disabled')
+                                      : $target.find(':input').addClass('webform-conditional-disabled');
+              $targetElements.webformProp('disabled', !actionResult);
+              $target.toggleClass('webform-conditional-hidden', !actionResult);
+              // Anything hidden needs to be disabled so that child elements of
+              // fieldsets do not block submission by being required.
+              $target.webformProp('disabled', !actionResult);
+              if (actionResult) {
+                $target.show();
+              }
+              else {
+                $target.hide();
+                // Record that the target was hidden.
+                targetLocked[action['target']] = 'hide';
+              }
+              if ($target.is('tr')) {
+                Drupal.webform.restripeTable($target.closest('table').first());
+              }
+            }
+            break;
+
+          case 'require':
+            var $requiredSpan = $target.find('.form-required, .form-optional').first();
+            if (actionResult != $requiredSpan.hasClass('form-required')) {
+              var $targetInputElements = $target.find("input:text,textarea,input[type='email'],select,input:radio,input:file");
+              // Rather than hide the required tag, remove it so that other jQuery can respond via Drupal behaviors.
+              Drupal.detachBehaviors($requiredSpan);
+              $targetInputElements
+                .webformProp('required', actionResult)
+                .toggleClass('required', actionResult);
+              if (actionResult) {
+                $requiredSpan.replaceWith('<span class="form-required" title="' + Drupal.t('This field is required.') + '">*</span>');
+              }
+              else {
+                $requiredSpan.replaceWith('<span class="form-optional"></span>');
+              }
+              Drupal.attachBehaviors($requiredSpan);
+            }
+            break;
+
+          case 'set':
+            var isLocked = targetLocked[action['target']];
+            var $texts = $target.find("input:text,textarea,input[type='email']");
+            var $selects = $target.find('select,select option,input:radio,input:checkbox');
+            var $markups = $target.filter('.webform-component-markup');
+            if (actionResult) {
+              var multiple = $.map(action['argument'].split(','), $.trim);
+              $selects.webformVal(multiple);
+              $texts.val([action['argument']]);
+              // A special case is made for markup. It is sanitized with filter_xss_admin on the server.
+              // otherwise text() should be used to avoid an XSS vulnerability. text() however would
+              // preclude the use of tags like <strong> or <a>.
+              $markups.html(action['argument']);
+            }
+            else {
+              // Markup not set? Then restore original markup as provided in
+              // the attribute data-webform-markup.
+              $markups.each(function () {
+                var $this = $(this);
+                var original = $this.data('webform-markup');
+                if (original !== undefined) {
+                  $this.html(original);
+                }
+              });
+            }
+            if (!isLocked) {
+              // If not previously hidden or set, disable the element readonly or readonly-like behavior.
+              $selects.webformProp('disabled', actionResult);
+              $texts.webformProp('readonly', actionResult);
+              targetLocked[action['target']] = actionResult ? 'set' : false;
+            }
+            break;
+        }
+      }); // End look on each action for one conditional
+    }); // End loop on each conditional.
+  };
+
+  /**
+   * Event handler to prevent propagation of events, typically click for disabling
+   * radio and checkboxes.
+   */
+  Drupal.webform.stopEvent = function () {
+    return false;
+  };
+
+  Drupal.webform.conditionalOperatorStringEqual = function (element, existingValue, ruleValue) {
+    var returnValue = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase() === ruleValue.toLowerCase()) {
+        returnValue = true;
+        return false; // break.
+      }
+    });
+    return returnValue;
+  };
+
+  Drupal.webform.conditionalOperatorStringNotEqual = function (element, existingValue, ruleValue) {
+    var found = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase() === ruleValue.toLowerCase()) {
+        found = true;
+      }
+    });
+    return !found;
+  };
+
+  Drupal.webform.conditionalOperatorStringContains = function (element, existingValue, ruleValue) {
+    var returnValue = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase().indexOf(ruleValue.toLowerCase()) > -1) {
+        returnValue = true;
+        return false; // break.
+      }
+    });
+    return returnValue;
+  };
+
+  Drupal.webform.conditionalOperatorStringDoesNotContain = function (element, existingValue, ruleValue) {
+    var found = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase().indexOf(ruleValue.toLowerCase()) > -1) {
+        found = true;
+      }
+    });
+    return !found;
+  };
+
+  Drupal.webform.conditionalOperatorStringBeginsWith = function (element, existingValue, ruleValue) {
+    var returnValue = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase().indexOf(ruleValue.toLowerCase()) === 0) {
+        returnValue = true;
+        return false; // break.
+      }
+    });
+    return returnValue;
+  };
+
+  Drupal.webform.conditionalOperatorStringEndsWith = function (element, existingValue, ruleValue) {
+    var returnValue = false;
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    $.each(currentValue, function (n, value) {
+      if (value.toLowerCase().lastIndexOf(ruleValue.toLowerCase()) === value.length - ruleValue.length) {
+        returnValue = true;
+        return false; // break.
+      }
+    });
+    return returnValue;
+  };
+
+  Drupal.webform.conditionalOperatorStringEmpty = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    var returnValue = true;
+    $.each(currentValue, function (n, value) {
+      if (value !== '') {
+        returnValue = false;
+        return false; // break.
+      }
+    });
+    return returnValue;
+  };
+
+  Drupal.webform.conditionalOperatorStringNotEmpty = function (element, existingValue, ruleValue) {
+    return !Drupal.webform.conditionalOperatorStringEmpty(element, existingValue, ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorSelectGreaterThan = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    return Drupal.webform.compare_select(currentValue[0], ruleValue, element) > 0;
+  };
+
+  Drupal.webform.conditionalOperatorSelectGreaterThanEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    var comparison = Drupal.webform.compare_select(currentValue[0], ruleValue, element);
+    return comparison > 0 || comparison === 0;
+  };
+
+  Drupal.webform.conditionalOperatorSelectLessThan = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    return Drupal.webform.compare_select(currentValue[0], ruleValue, element) < 0;
+  };
+
+  Drupal.webform.conditionalOperatorSelectLessThanEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    var comparison = Drupal.webform.compare_select(currentValue[0], ruleValue, element);
+    return comparison < 0 || comparison === 0;
+  };
+
+  Drupal.webform.conditionalOperatorNumericEqual = function (element, existingValue, ruleValue) {
+    // See float comparison: http://php.net/manual/en/language.types.float.php
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    var epsilon = 0.000001;
+    // An empty string does not match any number.
+    return currentValue[0] === '' ? false : (Math.abs(parseFloat(currentValue[0]) - parseFloat(ruleValue)) < epsilon);
+  };
+
+  Drupal.webform.conditionalOperatorNumericNotEqual = function (element, existingValue, ruleValue) {
+    // See float comparison: http://php.net/manual/en/language.types.float.php
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    var epsilon = 0.000001;
+    // An empty string does not match any number.
+    return currentValue[0] === '' ? true : (Math.abs(parseFloat(currentValue[0]) - parseFloat(ruleValue)) >= epsilon);
+  };
+
+  Drupal.webform.conditionalOperatorNumericGreaterThan = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    return parseFloat(currentValue[0]) > parseFloat(ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorNumericGreaterThanEqual = function (element, existingValue, ruleValue) {
+    return Drupal.webform.conditionalOperatorNumericGreaterThan(element, existingValue, ruleValue) ||
+           Drupal.webform.conditionalOperatorNumericEqual(element, existingValue, ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorNumericLessThan = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.stringValue(element, existingValue);
+    return parseFloat(currentValue[0]) < parseFloat(ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorNumericLessThanEqual = function (element, existingValue, ruleValue) {
+    return Drupal.webform.conditionalOperatorNumericLessThan(element, existingValue, ruleValue) ||
+           Drupal.webform.conditionalOperatorNumericEqual(element, existingValue, ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorDateEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.dateValue(element, existingValue);
+    return currentValue === ruleValue;
+  };
+
+  Drupal.webform.conditionalOperatorDateNotEqual = function (element, existingValue, ruleValue) {
+    return !Drupal.webform.conditionalOperatorDateEqual(element, existingValue, ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorDateBefore = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.dateValue(element, existingValue);
+    return (currentValue !== false) && currentValue < ruleValue;
+  };
+
+  Drupal.webform.conditionalOperatorDateBeforeEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.dateValue(element, existingValue);
+    return (currentValue !== false) && (currentValue < ruleValue || currentValue === ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorDateAfter = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.dateValue(element, existingValue);
+    return (currentValue !== false) && currentValue > ruleValue;
+  };
+
+  Drupal.webform.conditionalOperatorDateAfterEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.dateValue(element, existingValue);
+    return (currentValue !== false) && (currentValue > ruleValue || currentValue === ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorTimeEqual = function (element, existingValue, ruleValue) {
+    var currentValue = Drupal.webform.timeValue(element, existingValue);
+    return currentValue === ruleValue;
+  };
+
+  Drupal.webform.conditionalOperatorTimeNotEqual = function (element, existingValue, ruleValue) {
+    return !Drupal.webform.conditionalOperatorTimeEqual(element, existingValue, ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorTimeBefore = function (element, existingValue, ruleValue) {
+    // Date and time operators intentionally exclusive for "before".
+    var currentValue = Drupal.webform.timeValue(element, existingValue);
+    return (currentValue !== false) && (currentValue < ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorTimeBeforeEqual = function (element, existingValue, ruleValue) {
+    // Date and time operators intentionally exclusive for "before".
+    var currentValue = Drupal.webform.timeValue(element, existingValue);
+    return (currentValue !== false) && (currentValue < ruleValue || currentValue === ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorTimeAfter = function (element, existingValue, ruleValue) {
+    // Date and time operators intentionally inclusive for "after".
+    var currentValue = Drupal.webform.timeValue(element, existingValue);
+    return (currentValue !== false) && (currentValue > ruleValue);
+  };
+
+  Drupal.webform.conditionalOperatorTimeAfterEqual = function (element, existingValue, ruleValue) {
+    // Date and time operators intentionally inclusive for "after".
+    var currentValue = Drupal.webform.timeValue(element, existingValue);
+    return (currentValue !== false) && (currentValue > ruleValue || currentValue === ruleValue);
+  };
+
+  /**
+   * Utility function to compare values of a select component.
+   *
+   * @param string a
+   *   First select option key to compare
+   * @param string b
+   *   Second select option key to compare
+   * @param array options
+   *   Associative array where the a and b are within the keys
+   *
+   * @return integer based upon position of $a and $b in $options
+   *   -N if $a above (<) $b
+   *   0 if $a = $b
+   *   +N if $a is below (>) $b
+   */
+  Drupal.webform.compare_select = function (a, b, element) {
+    var optionList = [];
+    $('option,input:radio,input:checkbox', element).each(function () {
+      optionList.push($(this).val());
+    });
+    var a_position = optionList.indexOf(a);
+    var b_position = optionList.indexOf(b);
+    return (a_position < 0 || b_position < 0) ? null : a_position - b_position;
+  };
+
+  /**
+   * Utility to return current visibility. Uses actual visibility, except for
+   * hidden components which use the applied disabled class.
+   */
+  Drupal.webform.isVisible = function ($element) {
+    return $element.hasClass('webform-component-hidden')
+              ? !$element.find('input').first().hasClass('webform-conditional-disabled')
+              : $element.closest('.webform-conditional-hidden').length == 0;
+  };
+
+  /**
+   * Utility function to get a string value from a select/radios/text/etc. field.
+   */
+  Drupal.webform.stringValue = function (element, existingValue) {
+    var value = [];
+    if (element) {
+      var $element = $(element);
+      if (Drupal.webform.isVisible($element)) {
+        // Checkboxes and radios.
+        $element.find('input[type=checkbox]:checked,input[type=radio]:checked').each(function () {
+          value.push(this.value);
+        });
+        // Select lists.
+        if (!value.length) {
+          var selectValue = $element.find('select').val();
+          if (selectValue) {
+            if ($.isArray(selectValue)) {
+              value = selectValue;
+            }
+            else {
+              value.push(selectValue);
+            }
+          }
+        }
+        // Simple text fields. This check is done last so that the select list in
+        // select-or-other fields comes before the "other" text field.
+        if (!value.length) {
+          $element.find('input:not([type=checkbox],[type=radio]),textarea').each(function () {
+            value.push(this.value);
+          });
+        }
+      }
+    }
+    else {
+      switch ($.type(existingValue)) {
+        case 'array':
+          value = existingValue;
+          break;
+
+        case 'string':
+          value.push(existingValue);
+          break;
+      }
+    }
+    return value;
+  };
+
+  /**
+   * Utility function to calculate a second-based timestamp from a time field.
+   */
+  Drupal.webform.dateValue = function (element, existingValue) {
+    var value = false;
+    if (element) {
+      var $element = $(element);
+      if (Drupal.webform.isVisible($element)) {
+        var day = $element.find('[name*=day]').val();
+        var month = $element.find('[name*=month]').val();
+        var year = $element.find('[name*=year]').val();
+        // Months are 0 indexed in JavaScript.
+        if (month) {
+          month--;
+        }
+        if (year !== '' && month !== '' && day !== '') {
+          value = Date.UTC(year, month, day) / 1000;
+        }
+      }
+    }
+    else {
+      if ($.type(existingValue) === 'array' && existingValue.length) {
+        existingValue = existingValue[0];
+      }
+      if ($.type(existingValue) === 'string') {
+        existingValue = existingValue.split('-');
+      }
+      if (existingValue.length === 3) {
+        value = Date.UTC(existingValue[0], existingValue[1], existingValue[2]) / 1000;
+      }
+    }
+    return value;
+  };
+
+  /**
+   * Utility function to calculate a millisecond timestamp from a time field.
+   */
+  Drupal.webform.timeValue = function (element, existingValue) {
+    var value = false;
+    if (element) {
+      var $element = $(element);
+      if (Drupal.webform.isVisible($element)) {
+        var hour = $element.find('[name*=hour]').val();
+        var minute = $element.find('[name*=minute]').val();
+        var ampm = $element.find('[name*=ampm]:checked').val();
+
+        // Convert to integers if set.
+        hour = (hour === '') ? hour : parseInt(hour);
+        minute = (minute === '') ? minute : parseInt(minute);
+
+        if (hour !== '') {
+          hour = (hour < 12 && ampm == 'pm') ? hour + 12 : hour;
+          hour = (hour === 12 && ampm == 'am') ? 0 : hour;
+        }
+        if (hour !== '' && minute !== '') {
+          value = Date.UTC(1970, 0, 1, hour, minute) / 1000;
+        }
+      }
+    }
+    else {
+      if ($.type(existingValue) === 'array' && existingValue.length) {
+        existingValue = existingValue[0];
+      }
+      if ($.type(existingValue) === 'string') {
+        existingValue = existingValue.split(':');
+      }
+      if (existingValue.length >= 2) {
+        value = Date.UTC(1970, 0, 1, existingValue[0], existingValue[1]) / 1000;
+      }
+    }
+    return value;
+  };
+
+  /**
+   * Make a prop shim for jQuery < 1.9.
+   */
+  $.fn.webformProp = $.fn.webformProp || function (name, value) {
+    if (value) {
+      return $.fn.prop ? this.prop(name, true) : this.attr(name, true);
+    }
+    else {
+      return $.fn.prop ? this.prop(name, false) : this.removeAttr(name);
+    }
+  };
+
+  /**
+   * Make a multi-valued val() function for setting checkboxes, radios, and select
+   * elements.
+   */
+  $.fn.webformVal = function (values) {
+    this.each(function () {
+      var $this = $(this);
+      var value = $this.val();
+      var on = $.inArray($this.val(), values) != -1;
+      if (this.nodeName == 'OPTION') {
+        $this.webformProp('selected', on ? value : false);
+      }
+      else {
+        $this.val(on ? [value] : false);
+      }
+    });
+    return this;
+  };
+
+  /**
+   * Given a table's DOM element, restripe the odd/even classes.
+   */
+  Drupal.webform.restripeTable = function (table) {
+    // :even and :odd are reversed because jQuery counts from 0 and
+    // we count from 1, so we're out of sync.
+    // Match immediate children of the parent element to allow nesting.
+    $('> tbody > tr, > tr', table)
+      .filter(':visible:odd').filter('.odd')
+        .removeClass('odd').addClass('even')
+      .end().end()
+      .filter(':visible:even').filter('.even')
+        .removeClass('even').addClass('odd');
+  };
+
+})(jQuery);
+;
+/**
+ * @file
+ * Some basic behaviors and utility functions for Views.
+ */
+(function ($) {
+
+Drupal.Views = {};
+
+/**
+ * jQuery UI tabs, Views integration component
+ */
+Drupal.behaviors.viewsTabs = {
+  attach: function (context) {
+    if ($.viewsUi && $.viewsUi.tabs) {
+      $('#views-tabset').once('views-processed').viewsTabs({
+        selectedClass: 'active'
+      });
+    }
+
+    $('a.views-remove-link').once('views-processed').click(function(event) {
+      var id = $(this).attr('id').replace('views-remove-link-', '');
+      $('#views-row-' + id).hide();
+      $('#views-removed-' + id).attr('checked', true);
+      event.preventDefault();
+   });
+  /**
+    * Here is to handle display deletion
+    * (checking in the hidden checkbox and hiding out the row)
+    */
+  $('a.display-remove-link')
+    .addClass('display-processed')
+    .click(function() {
+      var id = $(this).attr('id').replace('display-remove-link-', '');
+      $('#display-row-' + id).hide();
+      $('#display-removed-' + id).attr('checked', true);
+      return false;
+  });
+  }
+};
+
+/**
+ * Helper function to parse a querystring.
+ */
+Drupal.Views.parseQueryString = function (query) {
+  var args = {};
+  var pos = query.indexOf('?');
+  if (pos != -1) {
+    query = query.substring(pos + 1);
+  }
+  var pairs = query.split('&');
+  for(var i in pairs) {
+    if (typeof(pairs[i]) == 'string') {
+      var pair = pairs[i].split('=');
+      // Ignore the 'q' path argument, if present.
+      if (pair[0] != 'q' && pair[1]) {
+        args[decodeURIComponent(pair[0].replace(/\+/g, ' '))] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
+      }
+    }
+  }
+  return args;
+};
+
+/**
+ * Helper function to return a view's arguments based on a path.
+ */
+Drupal.Views.parseViewArgs = function (href, viewPath) {
+
+  // Provide language prefix.
+  if (Drupal.settings.pathPrefix) {
+    var viewPath = Drupal.settings.pathPrefix + viewPath;
+  }
+  var returnObj = {};
+  var path = Drupal.Views.getPath(href);
+  // Ensure we have a correct path.
+  if (viewPath && path.substring(0, viewPath.length + 1) == viewPath + '/') {
+    var args = decodeURIComponent(path.substring(viewPath.length + 1, path.length));
+    returnObj.view_args = args;
+    returnObj.view_path = path;
+  }
+  return returnObj;
+};
+
+/**
+ * Strip off the protocol plus domain from an href.
+ */
+Drupal.Views.pathPortion = function (href) {
+  // Remove e.g. http://example.com if present.
+  var protocol = window.location.protocol;
+  if (href.substring(0, protocol.length) == protocol) {
+    // 2 is the length of the '//' that normally follows the protocol
+    href = href.substring(href.indexOf('/', protocol.length + 2));
+  }
+  return href;
+};
+
+/**
+ * Return the Drupal path portion of an href.
+ */
+Drupal.Views.getPath = function (href) {
+  href = Drupal.Views.pathPortion(href);
+  href = href.substring(Drupal.settings.basePath.length, href.length);
+  // 3 is the length of the '?q=' added to the url without clean urls.
+  if (href.substring(0, 3) == '?q=') {
+    href = href.substring(3, href.length);
+  }
+  var chars = ['#', '?', '&'];
+  for (i in chars) {
+    if (href.indexOf(chars[i]) > -1) {
+      href = href.substr(0, href.indexOf(chars[i]));
+    }
+  }
+  return href;
+};
+
+})(jQuery);
+;
+(function ($) {
+
+Drupal.googleanalytics = {};
+
+$(document).ready(function() {
+
+  // Attach mousedown, keyup, touchstart events to document only and catch
+  // clicks on all elements.
+  $(document.body).bind("mousedown keyup touchstart", function(event) {
+
+    // Catch the closest surrounding link of a clicked element.
+    $(event.target).closest("a,area").each(function() {
+
+      // Is the clicked URL internal?
+      if (Drupal.googleanalytics.isInternal(this.href)) {
+        // Skip 'click' tracking, if custom tracking events are bound.
+        if ($(this).is('.colorbox') && (Drupal.settings.googleanalytics.trackColorbox)) {
+          // Do nothing here. The custom event will handle all tracking.
+          //console.info("Click on .colorbox item has been detected.");
+        }
+        // Is download tracking activated and the file extension configured for download tracking?
+        else if (Drupal.settings.googleanalytics.trackDownload && Drupal.googleanalytics.isDownload(this.href)) {
+          // Download link clicked.
+          ga("send", {
+            "hitType": "event",
+            "eventCategory": "Downloads",
+            "eventAction": Drupal.googleanalytics.getDownloadExtension(this.href).toUpperCase(),
+            "eventLabel": Drupal.googleanalytics.getPageUrl(this.href),
+            "transport": "beacon"
+          });
+        }
+        else if (Drupal.googleanalytics.isInternalSpecial(this.href)) {
+          // Keep the internal URL for Google Analytics website overlay intact.
+          ga("send", {
+            "hitType": "pageview",
+            "page": Drupal.googleanalytics.getPageUrl(this.href),
+            "transport": "beacon"
+          });
+        }
+      }
+      else {
+        if (Drupal.settings.googleanalytics.trackMailto && $(this).is("a[href^='mailto:'],area[href^='mailto:']")) {
+          // Mailto link clicked.
+          ga("send", {
+            "hitType": "event",
+            "eventCategory": "Mails",
+            "eventAction": "Click",
+            "eventLabel": this.href.substring(7),
+            "transport": "beacon"
+          });
+        }
+        else if (Drupal.settings.googleanalytics.trackOutbound && this.href.match(/^\w+:\/\//i)) {
+          if (Drupal.settings.googleanalytics.trackDomainMode !== 2 || (Drupal.settings.googleanalytics.trackDomainMode === 2 && !Drupal.googleanalytics.isCrossDomain(this.hostname, Drupal.settings.googleanalytics.trackCrossDomains))) {
+            // External link clicked / No top-level cross domain clicked.
+            ga("send", {
+              "hitType": "event",
+              "eventCategory": "Outbound links",
+              "eventAction": "Click",
+              "eventLabel": this.href,
+              "transport": "beacon"
+            });
+          }
+        }
+      }
+    });
+  });
+
+  // Track hash changes as unique pageviews, if this option has been enabled.
+  if (Drupal.settings.googleanalytics.trackUrlFragments) {
+    window.onhashchange = function() {
+      ga("send", {
+        "hitType": "pageview",
+        "page": location.pathname + location.search + location.hash
+      });
+    };
+  }
+
+  // Colorbox: This event triggers when the transition has completed and the
+  // newly loaded content has been revealed.
+  if (Drupal.settings.googleanalytics.trackColorbox) {
+    $(document).bind("cbox_complete", function () {
+      var href = $.colorbox.element().attr("href");
+      if (href) {
+        ga("send", {
+          "hitType": "pageview",
+          "page": Drupal.googleanalytics.getPageUrl(href)
+        });
+      }
+    });
+  }
+
+});
+
+/**
+ * Check whether the hostname is part of the cross domains or not.
+ *
+ * @param string hostname
+ *   The hostname of the clicked URL.
+ * @param array crossDomains
+ *   All cross domain hostnames as JS array.
+ *
+ * @return boolean
+ */
+Drupal.googleanalytics.isCrossDomain = function (hostname, crossDomains) {
+  /**
+   * jQuery < 1.6.3 bug: $.inArray crushes IE6 and Chrome if second argument is
+   * `null` or `undefined`, http://bugs.jquery.com/ticket/10076,
+   * https://github.com/jquery/jquery/commit/a839af034db2bd934e4d4fa6758a3fed8de74174
+   *
+   * @todo: Remove/Refactor in D8
+   */
+  if (!crossDomains) {
+    return false;
+  }
+  else {
+    return $.inArray(hostname, crossDomains) > -1 ? true : false;
+  }
+};
+
+/**
+ * Check whether this is a download URL or not.
+ *
+ * @param string url
+ *   The web url to check.
+ *
+ * @return boolean
+ */
+Drupal.googleanalytics.isDownload = function (url) {
+  var isDownload = new RegExp("\\.(" + Drupal.settings.googleanalytics.trackDownloadExtensions + ")([\?#].*)?$", "i");
+  return isDownload.test(url);
+};
+
+/**
+ * Check whether this is an absolute internal URL or not.
+ *
+ * @param string url
+ *   The web url to check.
+ *
+ * @return boolean
+ */
+Drupal.googleanalytics.isInternal = function (url) {
+  var isInternal = new RegExp("^(https?):\/\/" + window.location.host, "i");
+  return isInternal.test(url);
+};
+
+/**
+ * Check whether this is a special URL or not.
+ *
+ * URL types:
+ *  - gotwo.module /go/* links.
+ *
+ * @param string url
+ *   The web url to check.
+ *
+ * @return boolean
+ */
+Drupal.googleanalytics.isInternalSpecial = function (url) {
+  var isInternalSpecial = new RegExp("(\/go\/.*)$", "i");
+  return isInternalSpecial.test(url);
+};
+
+/**
+ * Extract the relative internal URL from an absolute internal URL.
+ *
+ * Examples:
+ * - http://mydomain.com/node/1 -> /node/1
+ * - http://example.com/foo/bar -> http://example.com/foo/bar
+ *
+ * @param string url
+ *   The web url to check.
+ *
+ * @return string
+ *   Internal website URL
+ */
+Drupal.googleanalytics.getPageUrl = function (url) {
+  var extractInternalUrl = new RegExp("^(https?):\/\/" + window.location.host, "i");
+  return url.replace(extractInternalUrl, '');
+};
+
+/**
+ * Extract the download file extension from the URL.
+ *
+ * @param string url
+ *   The web url to check.
+ *
+ * @return string
+ *   The file extension of the passed url. e.g. "zip", "txt"
+ */
+Drupal.googleanalytics.getDownloadExtension = function (url) {
+  var extractDownloadextension = new RegExp("\\.(" + Drupal.settings.googleanalytics.trackDownloadExtensions + ")([\?#].*)?$", "i");
+  var extension = extractDownloadextension.exec(url);
+  return (extension === null) ? '' : extension[1];
+};
+
+})(jQuery);
+;
+/**
+ * @file
+ * Handles AJAX fetching of views, including filter submission and response.
+ */
+(function ($) {
+
+/**
+ * Attaches the AJAX behavior to Views exposed filter forms and key View links.
+ */
+Drupal.behaviors.ViewsAjaxView = {};
+Drupal.behaviors.ViewsAjaxView.attach = function() {
+  if (Drupal.settings && Drupal.settings.views && Drupal.settings.views.ajaxViews) {
+    $.each(Drupal.settings.views.ajaxViews, function(i, settings) {
+      Drupal.views.instances[i] = new Drupal.views.ajaxView(settings);
+    });
+  }
+};
+
+Drupal.views = {};
+Drupal.views.instances = {};
+
+/**
+ * Javascript object for a certain view.
+ */
+Drupal.views.ajaxView = function(settings) {
+  var selector = '.view-dom-id-' + settings.view_dom_id;
+  this.$view = $(selector);
+
+  // Retrieve the path to use for views' ajax.
+  var ajax_path = Drupal.settings.views.ajax_path;
+
+  // If there are multiple views this might've ended up showing up multiple times.
+  if (ajax_path.constructor.toString().indexOf("Array") != -1) {
+    ajax_path = ajax_path[0];
+  }
+
+  // Check if there are any GET parameters to send to views.
+  var queryString = window.location.search || '';
+  if (queryString !== '') {
+    // Remove the question mark and Drupal path component if any.
+    var queryString = queryString.slice(1).replace(/q=[^&]+&?|&?render=[^&]+/, '');
+    if (queryString !== '') {
+      // If there is a '?' in ajax_path, clean url are on and & should be used to add parameters.
+      queryString = ((/\?/.test(ajax_path)) ? '&' : '?') + queryString;
+    }
+  }
+
+  this.element_settings = {
+    url: ajax_path + queryString,
+    submit: settings,
+    setClick: true,
+    event: 'click',
+    selector: selector,
+    progress: { type: 'throbber' }
+  };
+
+  this.settings = settings;
+
+  // Add the ajax to exposed forms.
+  this.$exposed_form = $('#views-exposed-form-'+ settings.view_name.replace(/_/g, '-') + '-' + settings.view_display_id.replace(/_/g, '-'));
+  this.$exposed_form.once(jQuery.proxy(this.attachExposedFormAjax, this));
+
+  // Add the ajax to pagers.
+  this.$view.once(jQuery.proxy(this.attachPagerAjax, this));
+
+  // Add a trigger to update this view specifically. In order to trigger a
+  // refresh use the following code.
+  //
+  // @code
+  // jQuery('.view-name').trigger('RefreshView');
+  // @endcode
+  // Add a trigger to update this view specifically.
+  var self_settings = this.element_settings;
+  self_settings.event = 'RefreshView';
+  this.refreshViewAjax = new Drupal.ajax(this.selector, this.$view, self_settings);
+};
+
+Drupal.views.ajaxView.prototype.attachExposedFormAjax = function() {
+  var button = $('input[type=submit], button[type=submit], input[type=image]', this.$exposed_form);
+  button = button[0];
+
+  this.exposedFormAjax = new Drupal.ajax($(button).attr('id'), button, this.element_settings);
+};
+
+Drupal.views.ajaxView.prototype.filterNestedViews= function() {
+  // If there is at least one parent with a view class, this view
+  // is nested (e.g., an attachment). Bail.
+  return !this.$view.parents('.view').size();
+};
+
+/**
+ * Attach the ajax behavior to each link.
+ */
+Drupal.views.ajaxView.prototype.attachPagerAjax = function() {
+  this.$view.find('ul.pager > li > a, th.views-field a, .attachment .views-summary a')
+  .each(jQuery.proxy(this.attachPagerLinkAjax, this));
+};
+
+/**
+ * Attach the ajax behavior to a singe link.
+ */
+Drupal.views.ajaxView.prototype.attachPagerLinkAjax = function(id, link) {
+  var $link = $(link);
+  // Don't attach to pagers inside nested views.
+  if ($link.closest('.view')[0] !== this.$view[0]) {
+    return;
+  }
+  var viewData = {};
+  var href = $link.attr('href');
+  // Construct an object using the settings defaults and then overriding
+  // with data specific to the link.
+  $.extend(
+    viewData,
+    this.settings,
+    Drupal.Views.parseQueryString(href),
+    // Extract argument data from the URL.
+    Drupal.Views.parseViewArgs(href, this.settings.view_base_path)
+  );
+
+  // For anchor tags, these will go to the target of the anchor rather
+  // than the usual location.
+  $.extend(viewData, Drupal.Views.parseViewArgs(href, this.settings.view_base_path));
+
+  // If the view has arguments in the settings, then use them instead of
+  // the parsed args.
+  if(this.settings.view_args){
+    viewData.view_args = this.settings.view_args;
+  }
+
+  this.element_settings.submit = viewData;
+  this.pagerAjax = new Drupal.ajax(false, $link, this.element_settings);
+};
+
+Drupal.ajax.prototype.commands.viewsScrollTop = function (ajax, response, status) {
+  // Scroll to the top of the view. This will allow users
+  // to browse newly loaded content after e.g. clicking a pager
+  // link.
+  var offset = $(response.selector).offset();
+  // We can't guarantee that the scrollable object should be
+  // the body, as the view could be embedded in something
+  // more complex such as a modal popup. Recurse up the DOM
+  // and scroll the first element that has a non-zero top.
+  var scrollTarget = response.selector;
+  while ($(scrollTarget).scrollTop() == 0 && $(scrollTarget).parent()) {
+    scrollTarget = $(scrollTarget).parent();
+  }
+  // Only scroll upward
+  if (offset.top - 10 < $(scrollTarget).scrollTop()) {
+    $(scrollTarget).animate({scrollTop: (offset.top - 10)}, 500);
+  }
+};
+
+})(jQuery);
+;
+(function ($) {
+
+Drupal.behaviors.openid = {
+  attach: function (context) {
+    var loginElements = $('.form-item-name, .form-item-pass, li.openid-link');
+    var openidElements = $('.form-item-openid-identifier, li.user-link');
+    var cookie = $.cookie('Drupal.visitor.openid_identifier');
+
+    // This behavior attaches by ID, so is only valid once on a page.
+    if (!$('#edit-openid-identifier.openid-processed').length) {
+      if (cookie) {
+        $('#edit-openid-identifier').val(cookie);
+      }
+      if ($('#edit-openid-identifier').val() || location.hash == '#openid-login') {
+        $('#edit-openid-identifier').addClass('openid-processed');
+        loginElements.hide();
+        // Use .css('display', 'block') instead of .show() to be Konqueror friendly.
+        openidElements.css('display', 'block');
+      }
+    }
+
+    $('li.openid-link:not(.openid-processed)', context)
+      .addClass('openid-processed')
+      .click(function () {
+         loginElements.hide();
+         openidElements.css('display', 'block');
+        // Remove possible error message.
+        $('#edit-name, #edit-pass').removeClass('error');
+        $('div.messages.error').hide();
+        // Set focus on OpenID Identifier field.
+        $('#edit-openid-identifier')[0].focus();
+        return false;
+      });
+    $('li.user-link:not(.openid-processed)', context)
+      .addClass('openid-processed')
+      .click(function () {
+         openidElements.hide();
+         loginElements.css('display', 'block');
+        // Clear OpenID Identifier field and remove possible error message.
+        $('#edit-openid-identifier').val('').removeClass('error');
+        $('div.messages.error').css('display', 'block');
+        // Set focus on username field.
+        $('#edit-name')[0].focus();
+        return false;
+      });
+  }
+};
+
+})(jQuery);
+;
